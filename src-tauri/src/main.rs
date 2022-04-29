@@ -3,6 +3,14 @@
   windows_subsystem = "windows"
 )]
 
+#[macro_use]
+extern crate diesel;
+
+mod channel_manager;
+mod model;
+mod schema;
+mod sqlite3;
+
 fn main() {
   tauri::Builder::default()
     .run(tauri::generate_context!())
