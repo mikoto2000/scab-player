@@ -1,0 +1,2 @@
+$Env:DATABASE_URL="./assets/scab-player.db"
+
