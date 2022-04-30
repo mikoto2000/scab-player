@@ -29,12 +29,10 @@ pub struct Episode {
     pub is_finish: bool
 }
 
-#[derive(Insertable)]
+#[derive(Insertable, Debug, Clone)]
 #[table_name = "episode"]
-pub struct NewEpisode<'a> {
+pub struct NewEpisode {
     pub channel_id: i32,
-    pub title: &'a str,
-    pub uri: &'a str,
-    pub current_time: Option<i32>,
-    pub is_finish: bool
+    pub title: String,
+    pub uri: String
 }

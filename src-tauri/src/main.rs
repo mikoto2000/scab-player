@@ -10,6 +10,7 @@ mod channel_manager;
 mod model;
 mod schema;
 mod sqlite3;
+mod virtual_channel;
 
 fn main() {
   tauri::Builder::default()

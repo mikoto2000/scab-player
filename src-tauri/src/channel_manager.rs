@@ -73,7 +73,7 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
 
 
 #[cfg(test)]
-mod main_tests {
+mod channel_manager_tests {
     use std::process::Command;
     use crate::channel_manager::*;
 
@@ -152,17 +152,13 @@ mod main_tests {
         let new_episodes = vec![
             NewEpisode {
                 channel_id: 0,
-                title: "episode_title_1",
-                uri: "episode_uri_1",
-                current_time: None,
-                is_finish: false
+                title: "episode_title_1".to_string(),
+                uri: "episode_uri_1".to_string(),
             },
             NewEpisode {
                 channel_id: 0,
-                title: "episode_title_2",
-                uri: "episode_uri_2",
-                current_time: Some(99),
-                is_finish: true
+                title: "episode_title_2".to_string(),
+                uri: "episode_uri_2".to_string(),
             },
         ];
 
@@ -183,8 +179,8 @@ mod main_tests {
         assert_eq!(second_episode.channel_name, "channel_name");
         assert_eq!(second_episode.title, "episode_title_2");
         assert_eq!(second_episode.uri, "episode_uri_2");
-        assert_eq!(second_episode.current_time, Some(99));
-        assert_eq!(second_episode.is_finish, true);
+        assert_eq!(first_episode.current_time, None);
+        assert_eq!(first_episode.is_finish, false);
 
         after();
     }
