@@ -8,19 +8,25 @@ type Channel = {
 };
 
 type ChannelListProps = {
-  channels: Array<Channel>
+  channels: Array<Channel>,
+  onClick: (channel_index: number) => void
 };
 
 function ChannelList(props : ChannelListProps) {
 
-  const channel_list = props.channels.map((channel) => {
-    return <li>{channel.name}({channel.uri})</li>
+  const channelList = props.channels.map((channel, channel_index) => {
+    return <li
+        key={channel.uri}
+        onClick={() => props.onClick(channel_index)}
+        >
+        {channel.name}({channel.uri})</li>
   });
 
   return (
     <div className="ChannelList">
+      <h1>チャンネル一覧</h1>
       <ul>
-        {channel_list}
+        {channelList}
       </ul>
     </div>
   );

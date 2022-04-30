@@ -5,26 +5,52 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/tauri'
 
 import ChannelList from './ChannelList';
+import EpisodeList from './EpisodeList';
 
 type Channel = {
   uri: string,
   name: string
 };
 
+type Episode = {
+  id: number,
+  channelName: string,
+  uri: string,
+  title: string,
+  currentTime: number,
+  isFinish: boolean
+};
+
+
 function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
+  const [episodes, setEpisodes] = useState([] as Array<Episode>);
 
   useEffect(() => {
     (async () => {
-      const channells = await invoke('get_channels', {});
+      const channells : Array<Channel> = await invoke('get_channels', {});
 
-      setChannels((channells as Array<Channel>));
+      setChannels(channells);
     })()
-  }, []);
+  }, [episodes]);
+
+  async function getEpisodesFromChannelIndex(channel_index : number) {
+    const channel = channels[channel_index];
+
+    const episodes : Array<Episode> = await invoke('get_episodes', { channelUri: channel.uri });
+
+    setEpisodes(episodes);
+  }
 
   return (
     <div className="App">
-      <ChannelList channels={channels} />
+      <ChannelList
+        channels={channels}
+        onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
+      />
+      <EpisodeList
+        episodes={episodes}
+      />
     </div>
   );
 }
