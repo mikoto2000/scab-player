@@ -1,24 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+import { invoke } from '@tauri-apps/api/tauri'
+
+import ChannelList from './ChannelList';
+
+type Channel = {
+  uri: string,
+  name: string
+};
+
 function App() {
+  const [channels, setChannels] = useState([] as Array<Channel>);
+
+  useEffect(() => {
+    (async () => {
+      const channells = await invoke('get_channels', {});
+
+      setChannels((channells as Array<Channel>));
+    })()
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ChannelList channels={channels} />
     </div>
   );
 }
