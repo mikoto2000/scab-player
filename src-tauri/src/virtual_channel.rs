@@ -1,31 +1,32 @@
 use std::path::Path;
 
-//use crate::channel_manager::*;
+use crate::channel_manager::*;
 use crate::model::NewEpisode;
 
-//fn add_virtual_channel(virtual_channel_path_str: String) -> Result<Vec<NewEpisode>, String> {
-//    let virtual_channel_path = Path::new(&virtual_channel_path_str);
-//    if virtual_channel_path.is_dir() {
-//
-//        insert_channel(
-//            virtual_channel_path.to_str().unwrap().to_string(),
-//            virtual_channel_path.file_stem().unwrap().to_str().unwrap().to_string()
-//        ).expect("Channel insert error.");
-//
-//        let new_episodes = find_new_episodes(virtual_channel_path_str);
-//
-//        insert_episodes(new_episodes.clone())
-//            .expect("Episode insert error.");
-//
-//        Ok(new_episodes)
-//
-//    } else {
-//        Err(format!("{} is not directory.", virtual_channel_path_str))
-//    }
-//}
+fn add_virtual_channel(virtual_channel_path_str: String) -> Result<Vec<NewEpisode>, String> {
+    let virtual_channel_path = Path::new(&virtual_channel_path_str);
+    if virtual_channel_path.is_dir() {
+
+        insert_channel(
+            virtual_channel_path.canonicalize().unwrap().to_str().unwrap().to_string(),
+            virtual_channel_path.file_stem().unwrap().to_str().unwrap().to_string()
+        ).expect("Channel insert error.");
+
+        let new_episodes = find_new_episodes(virtual_channel_path_str);
+
+        insert_episodes(new_episodes.clone())
+            .expect("Episode insert error.");
+
+        Ok(new_episodes)
+
+    } else {
+        Err(format!("{} is not directory.", virtual_channel_path_str))
+    }
+}
 
 fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
     use walkdir::WalkDir;
+    let channel_uri = Path::new(&new_channel).canonicalize().unwrap().to_str().unwrap().to_string();
 
     WalkDir::new(new_channel).into_iter()
         .filter_map(|e| {
@@ -36,7 +37,7 @@ fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
                 let title = path.file_stem().unwrap().to_str().unwrap().to_string();
 
                 Some(NewEpisode {
-                    channel_uri: "channel_uri".to_string(),
+                    channel_uri: channel_uri.clone(),
                     uri: uri,
                     title: title,
                 })
@@ -49,10 +50,63 @@ fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
 
 #[cfg(test)]
 mod virtual_channel_tests {
+    use std::process::Command;
     use crate::virtual_channel::*;
+
+    const LATEST_MIGRATION_DIR: &str = "./migrations/2022-04-29-021610_create_scab-player/";
+
+    fn before() {
+        clear_db();
+    }
+
+    fn after() {
+        clear_db();
+    }
+
+    #[test]
+    fn test_add_virtual_channel() {
+        use crate::channel_manager::get_episodes;
+
+        before();
+
+        let channel_dir = "./test/virtual_channel/add_virtual_channel/basic_testdata".to_string();
+        let channel_path = Path::new(&channel_dir);
+
+        let added_episodes = add_virtual_channel(channel_dir.clone()).unwrap();
+
+        let first_added_episode = added_episodes.get(0).unwrap();
+        assert_eq!(first_added_episode.channel_uri, channel_path.canonicalize().unwrap().to_str().unwrap().to_string());
+        assert_eq!(first_added_episode.title, "test_audio_01");
+        assert_eq!(first_added_episode.uri, channel_path.join("test_audio_01.mp3").canonicalize().unwrap().to_str().unwrap().to_string());
+
+        let second_added_episode = added_episodes.get(0).unwrap();
+        assert_eq!(second_added_episode.channel_uri, channel_path.canonicalize().unwrap().to_str().unwrap().to_string());
+        assert_eq!(second_added_episode.title, "test_audio_01");
+        assert_eq!(second_added_episode.uri, channel_path.join("test_audio_01.mp3").canonicalize().unwrap().to_str().unwrap().to_string());
+
+        let episodes = get_episodes(channel_path.canonicalize().unwrap().to_str().unwrap().to_string());
+
+        let first_episode = episodes.get(0).unwrap();
+        assert_eq!(first_episode.channel_name, "basic_testdata");
+        assert_eq!(first_episode.title, "test_audio_01");
+        assert_eq!(first_episode.uri, channel_path.join("test_audio_01.mp3").canonicalize().unwrap().to_str().unwrap().to_string());
+        assert_eq!(first_episode.current_time, None);
+        assert_eq!(first_episode.is_finish, false);
+
+        let second_episode = episodes.get(1).unwrap();
+        assert_eq!(second_episode.channel_name, "basic_testdata");
+        assert_eq!(second_episode.title, "test_audio_02");
+        assert_eq!(second_episode.uri, channel_path.join("test_audio_02.mp3").canonicalize().unwrap().to_str().unwrap().to_string());
+        assert_eq!(second_episode.current_time, None);
+        assert_eq!(second_episode.is_finish, false);
+
+        after();
+    }
 
     #[test]
     fn test_get_channels() {
+        before();
+
         let base_dir = "./test/virtual_channel/find_new_episodes/basic_testdata".to_string();
         let results = find_new_episodes(base_dir);
 
@@ -73,5 +127,32 @@ mod virtual_channel_tests {
             second_result.uri,
             Path::new(except_uri_2).canonicalize().unwrap().to_str().unwrap().to_string()
         );
+
+        after();
+    }
+
+    fn clear_db() {
+        run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "down.sql").as_str(), "./assets/scab-player.db");
+        run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "up.sql").as_str(), "./assets/scab-player.db");
+    }
+
+    fn run_sql_from_file(file_path: &str, db_path: &str) {
+        let shell = get_shell();
+
+        Command::new(shell)
+                .args([
+                      "-c",
+                      format!("cat {} | sqlite3 {}", file_path, db_path).as_str()
+                ])
+                .output()
+                .expect("failed to execute process");
+    }
+
+    fn get_shell() -> &'static str {
+        if cfg!(target_os = "windows") {
+            "pwsh"
+        } else {
+            "sh"
+        }
     }
 }
