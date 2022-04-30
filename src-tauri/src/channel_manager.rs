@@ -7,7 +7,7 @@ pub fn get_channels() -> Vec<Channel> {
     use crate::sqlite3::establish_connection;
 
     let conn = establish_connection();
-    channel.load::<Channel>(&conn).expect("Error loading posts")
+    channel.load::<Channel>(&conn).expect("Error loading channels.")
 }
 
 pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
@@ -30,6 +30,27 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
         Err(why) => Err(why.to_string().into()),
         Ok(insert_row_count) => Ok(insert_row_count)
     }
+}
+
+use crate::model::Episode;
+
+pub fn get_episodes(channel_id : i32) -> Vec<Episode> {
+    use crate::schema::channel;
+    use crate::schema::episode;
+    use crate::sqlite3::establish_connection;
+
+    let conn = establish_connection();
+    episode::dsl::episode
+        .inner_join(channel::dsl::channel)
+        .select((
+            episode::id,
+            channel::name,
+            episode::title,
+            episode::uri,
+            episode::current_time,
+            episode::is_finish))
+        .filter(episode::channel_id.eq(channel_id))
+        .load::<Episode>(&conn).expect("Error loading episodes.")
 }
 
 
@@ -55,6 +76,7 @@ mod main_tests {
         run_sql_from_file("./test/channel_manager/before.sql", "./assets/scab-player.db");
 
         let channels = get_channels();
+        assert_eq!(channels.len(), 1);
 
         let first_channel = channels.first().unwrap();
 
@@ -78,6 +100,27 @@ mod main_tests {
         assert_eq!(first_channel.id, 1);
         assert_eq!(first_channel.uri, "insert_uri");
         assert_eq!(first_channel.name, "insert_name");
+
+        after();
+    }
+
+    #[test]
+    fn test_get_episodes() {
+        before();
+
+        run_sql_from_file("./test/channel_manager/before.sql", "./assets/scab-player.db");
+
+        let episodes = get_episodes(0);
+        assert_eq!(episodes.len(), 1);
+
+        let first_episode = episodes.first().unwrap();
+
+        assert_eq!(first_episode.id, 1);
+        assert_eq!(first_episode.channel_name, "name");
+        assert_eq!(first_episode.title, "hit_episode_title");
+        assert_eq!(first_episode.uri, "hit_episode_uri");
+        assert_eq!(first_episode.current_time, None);
+        assert_eq!(first_episode.is_finish, false);
 
         after();
     }

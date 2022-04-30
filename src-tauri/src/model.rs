@@ -3,7 +3,6 @@ use serde::Serialize;
 
 use crate::schema::channel;
 
-
 #[derive(Serialize, Deserialize, Queryable, Debug)]
 pub struct Channel {
     pub id: i32,
@@ -17,3 +16,16 @@ pub struct NewChannel<'a> {
     pub uri: &'a str,
     pub name: &'a str
 }
+
+use crate::schema::episode;
+
+#[derive(Serialize, Deserialize, Queryable, Debug)]
+pub struct Episode {
+    pub id: i32,
+    pub channel_name: String,
+    pub title: String,
+    pub uri: String,
+    pub current_time: Option<i32>,
+    pub is_finish: bool
+}
+
