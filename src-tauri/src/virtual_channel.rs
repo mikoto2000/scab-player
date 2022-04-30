@@ -36,7 +36,7 @@ fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
                 let title = path.file_stem().unwrap().to_str().unwrap().to_string();
 
                 Some(NewEpisode {
-                    channel_id: 0,
+                    channel_uri: "channel_uri".to_string(),
                     uri: uri,
                     title: title,
                 })
@@ -59,7 +59,6 @@ mod virtual_channel_tests {
         let first_result = results.get(0).unwrap();
         let except_title_1 = "test_audio_01";
         let except_uri_1 = "./test/virtual_channel/find_new_episodes/basic_testdata/test_audio_01.mp3";
-        assert_eq!(first_result.channel_id, 0);
         assert_eq!(first_result.title, except_title_1);
         assert_eq!(
             first_result.uri,
@@ -69,7 +68,6 @@ mod virtual_channel_tests {
         let second_result = results.get(1).unwrap();
         let except_title_2 = "test_audio_02";
         let except_uri_2 = "./test/virtual_channel/find_new_episodes/basic_testdata/test_audio_02.mp3";
-        assert_eq!(second_result.channel_id, 0);
         assert_eq!(second_result.title, except_title_2);
         assert_eq!(
             second_result.uri,

@@ -5,7 +5,6 @@ use crate::schema::channel;
 
 #[derive(Serialize, Deserialize, Queryable, Debug)]
 pub struct Channel {
-    pub id: i32,
     pub uri: String,
     pub name: String
 }
@@ -32,7 +31,7 @@ pub struct Episode {
 #[derive(Insertable, Debug, Clone)]
 #[table_name = "episode"]
 pub struct NewEpisode {
-    pub channel_id: i32,
+    pub channel_uri: String,
     pub title: String,
     pub uri: String
 }

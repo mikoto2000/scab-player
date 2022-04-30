@@ -34,7 +34,7 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
 
 use crate::model::Episode;
 
-pub fn get_episodes(channel_id : i32) -> Vec<Episode> {
+pub fn get_episodes(channel_uri : String) -> Vec<Episode> {
     use crate::schema::channel;
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
@@ -49,7 +49,7 @@ pub fn get_episodes(channel_id : i32) -> Vec<Episode> {
             episode::uri,
             episode::current_time,
             episode::is_finish))
-        .filter(episode::channel_id.eq(channel_id))
+        .filter(episode::channel_uri.eq(channel_uri))
         .load::<Episode>(&conn).expect("Error loading episodes.")
 }
 
@@ -98,7 +98,6 @@ mod channel_manager_tests {
 
         let first_channel = channels.first().unwrap();
 
-        assert_eq!(first_channel.id, 0);
         assert_eq!(first_channel.uri, "uri");
         assert_eq!(first_channel.name, "name");
 
@@ -115,7 +114,6 @@ mod channel_manager_tests {
         let channels = get_channels();
         let first_channel = channels.first().unwrap();
 
-        assert_eq!(first_channel.id, 1);
         assert_eq!(first_channel.uri, "insert_uri");
         assert_eq!(first_channel.name, "insert_name");
 
@@ -128,7 +126,7 @@ mod channel_manager_tests {
 
         run_sql_from_file("./test/channel_manager/test_get_episodes.sql", "./assets/scab-player.db");
 
-        let episodes = get_episodes(0);
+        let episodes = get_episodes("target_uri".to_string());
         assert_eq!(episodes.len(), 1);
 
         let first_episode = episodes.first().unwrap();
@@ -151,12 +149,12 @@ mod channel_manager_tests {
 
         let new_episodes = vec![
             NewEpisode {
-                channel_id: 0,
+                channel_uri: "channel_uri".to_string(),
                 title: "episode_title_1".to_string(),
                 uri: "episode_uri_1".to_string(),
             },
             NewEpisode {
-                channel_id: 0,
+                channel_uri: "channel_uri".to_string(),
                 title: "episode_title_2".to_string(),
                 uri: "episode_uri_2".to_string(),
             },
@@ -165,7 +163,7 @@ mod channel_manager_tests {
         let insert_count = insert_episodes(new_episodes);
         assert_eq!(insert_count.unwrap(), 2);
 
-        let episodes = get_episodes(0);
+        let episodes = get_episodes("channel_uri".to_string());
         let first_episode = episodes.first().unwrap();
         assert_eq!(first_episode.id, 1);
         assert_eq!(first_episode.channel_name, "channel_name");

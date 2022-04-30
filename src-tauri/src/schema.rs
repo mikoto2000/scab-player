@@ -1,6 +1,5 @@
 table! {
-    channel (id) {
-        id -> Integer,
+    channel (uri) {
         uri -> Text,
         name -> Text,
     }
@@ -9,7 +8,7 @@ table! {
 table! {
     episode (id) {
         id -> Integer,
-        channel_id -> Integer,
+        channel_uri -> Text,
         title -> Text,
         uri -> Text,
         current_time -> Nullable<Integer>,
@@ -17,7 +16,7 @@ table! {
     }
 }
 
-joinable!(episode -> channel (channel_id));
+joinable!(episode -> channel (channel_uri));
 
 allow_tables_to_appear_in_same_query!(
     channel,

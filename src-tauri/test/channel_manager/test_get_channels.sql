@@ -1,2 +1,2 @@
-INSERT INTO channel values (0, "uri", "name");
+INSERT INTO channel values ("uri", "name");
 
