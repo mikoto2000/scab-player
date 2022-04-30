@@ -53,6 +53,24 @@ pub fn get_episodes(channel_id : i32) -> Vec<Episode> {
         .load::<Episode>(&conn).expect("Error loading episodes.")
 }
 
+use crate::model::NewEpisode;
+
+pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
+    use crate::schema::episode;
+    use crate::sqlite3::establish_connection;
+
+    let conn = establish_connection();
+
+    let insert_result = diesel::insert_into(episode::table)
+        .values(episodes)
+        .execute(&conn);
+
+    match insert_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(insert_row_count) => Ok(insert_row_count)
+    }
+}
+
 
 #[cfg(test)]
 mod main_tests {
@@ -73,7 +91,7 @@ mod main_tests {
     fn test_get_channels() {
         before();
 
-        run_sql_from_file("./test/channel_manager/before.sql", "./assets/scab-player.db");
+        run_sql_from_file("./test/channel_manager/test_get_channels.sql", "./assets/scab-player.db");
 
         let channels = get_channels();
         assert_eq!(channels.len(), 1);
@@ -108,7 +126,7 @@ mod main_tests {
     fn test_get_episodes() {
         before();
 
-        run_sql_from_file("./test/channel_manager/before.sql", "./assets/scab-player.db");
+        run_sql_from_file("./test/channel_manager/test_get_episodes.sql", "./assets/scab-player.db");
 
         let episodes = get_episodes(0);
         assert_eq!(episodes.len(), 1);
@@ -125,6 +143,51 @@ mod main_tests {
         after();
     }
 
+    #[test]
+    fn test_insert_episodes() {
+        before();
+
+        run_sql_from_file("./test/channel_manager/test_insert_episodes.sql", "./assets/scab-player.db");
+
+        let new_episodes = vec![
+            NewEpisode {
+                channel_id: 0,
+                title: "episode_title_1",
+                uri: "episode_uri_1",
+                current_time: None,
+                is_finish: false
+            },
+            NewEpisode {
+                channel_id: 0,
+                title: "episode_title_2",
+                uri: "episode_uri_2",
+                current_time: Some(99),
+                is_finish: true
+            },
+        ];
+
+        let insert_count = insert_episodes(new_episodes);
+        assert_eq!(insert_count.unwrap(), 2);
+
+        let episodes = get_episodes(0);
+        let first_episode = episodes.first().unwrap();
+        assert_eq!(first_episode.id, 1);
+        assert_eq!(first_episode.channel_name, "channel_name");
+        assert_eq!(first_episode.title, "episode_title_1");
+        assert_eq!(first_episode.uri, "episode_uri_1");
+        assert_eq!(first_episode.current_time, None);
+        assert_eq!(first_episode.is_finish, false);
+
+        let second_episode = episodes.get(1).unwrap();
+        assert_eq!(second_episode.id, 2);
+        assert_eq!(second_episode.channel_name, "channel_name");
+        assert_eq!(second_episode.title, "episode_title_2");
+        assert_eq!(second_episode.uri, "episode_uri_2");
+        assert_eq!(second_episode.current_time, Some(99));
+        assert_eq!(second_episode.is_finish, true);
+
+        after();
+    }
 
     fn clear_db() {
         run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "down.sql").as_str(), "./assets/scab-player.db");
