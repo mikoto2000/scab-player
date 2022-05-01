@@ -18,7 +18,8 @@ fn main() {
     .invoke_handler(
         tauri::generate_handler![
             command::get_channels,
-            command::get_episodes
+            command::get_episodes,
+            command::find_new_episodes
         ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

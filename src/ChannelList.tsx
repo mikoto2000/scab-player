@@ -24,7 +24,7 @@ function ChannelList(props : ChannelListProps) {
 
   return (
     <div className="ChannelList">
-      <h1>チャンネル一覧</h1>
+      <h1>購読チャンネル一覧</h1>
       <ul>
         {channelList}
       </ul>

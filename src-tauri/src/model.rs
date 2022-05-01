@@ -28,7 +28,7 @@ pub struct Episode {
     pub is_finish: bool
 }
 
-#[derive(Insertable, Debug, Clone)]
+#[derive(Serialize, Deserialize, Insertable, Debug, Clone)]
 #[table_name = "episode"]
 pub struct NewEpisode {
     pub channel_uri: String,

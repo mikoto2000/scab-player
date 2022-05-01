@@ -24,7 +24,7 @@ fn add_virtual_channel(virtual_channel_path_str: String) -> Result<Vec<NewEpisod
     }
 }
 
-fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
+pub fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
     use walkdir::WalkDir;
     let channel_uri = Path::new(&new_channel).canonicalize().unwrap().to_str().unwrap().to_string();
 
