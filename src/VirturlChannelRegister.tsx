@@ -9,9 +9,14 @@ type Episode = {
     uri: string
 };
 
-function VirtualChannelRegister() {
+type VirtualChannelRegisterProps = {
+  onRegisterChannel: () => void
+};
+
+function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
   const [channelBaseDirectory, setChannelBaseDirectory] = useState("");
   const [findEpisodes, setFindEpisodes] = useState([] as Array<Episode>);
+  const [addChannelResultMessage, setAddChannelResultMessage] = useState("");
 
   async function selectChannelBaseDirectory() {
     const directory = await dialog.open({
@@ -19,26 +24,39 @@ function VirtualChannelRegister() {
       directory: true
     });
 
-    console.log(directory);
-
     if (typeof directory === "string") {
       setChannelBaseDirectory(directory);
 
       const episodes : Array<Episode> = await invoke('find_new_episodes', { newChannel: directory});
-
-      console.log(episodes);
 
       setFindEpisodes(episodes);
     }
 
   }
 
+  function addNewChannel() {
+
+       invoke('add_virtual_channel', { newChannel: channelBaseDirectory})
+           .then((_) => {
+               setAddChannelResultMessage("チャンネル登録に成功しました。");
+
+               setChannelBaseDirectory("");
+               setFindEpisodes([]);
+
+               props.onRegisterChannel();
+           })
+           .catch((e) => {
+                setAddChannelResultMessage(`チャンネル登録に失敗しました。${e}`);
+           });
+
+  }
+
   const episodes = findEpisodes.map((e) => {
-    return <li>{JSON.stringify(e)}</li>
+    return <li key={e.uri}>{JSON.stringify(e)}</li>
   });
 
   return (
-    <div className="ChannelList">
+    <div className="VirtualChannelRegister">
       <h1>選択チャンネル</h1>
       <div>
         <h2>Virtual Channel: </h2>
@@ -50,7 +68,10 @@ function VirtualChannelRegister() {
           </ol>
         </div>
         <button onClick={selectChannelBaseDirectory} >チャンネル選択</button>
-        <button>チャンネル登録</button>
+        <button onClick={addNewChannel}>チャンネル登録</button>
+        <div>
+            {addChannelResultMessage}
+        </div>
       </div>
     </div>
   );

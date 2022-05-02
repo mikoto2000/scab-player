@@ -19,7 +19,8 @@ fn main() {
         tauri::generate_handler![
             command::get_channels,
             command::get_episodes,
-            command::find_new_episodes
+            command::find_new_episodes,
+            command::add_virtual_channel
         ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

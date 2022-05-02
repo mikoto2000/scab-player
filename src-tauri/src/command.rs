@@ -18,7 +18,11 @@ pub fn get_episodes(channel_uri : String) -> Vec<Episode> {
 
 #[tauri::command]
 pub fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
-    println!("find_new_episodes: {:#?}", new_channel);
     virtual_channel::find_new_episodes(new_channel)
+}
+
+#[tauri::command]
+pub fn add_virtual_channel(new_channel: String) -> Result<Vec<NewEpisode>, String> {
+    virtual_channel::add_virtual_channel(new_channel)
 }
 

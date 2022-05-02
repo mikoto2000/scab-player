@@ -28,12 +28,13 @@ function App() {
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
 
   useEffect(() => {
-    (async () => {
-      const channells : Array<Channel> = await invoke('get_channels', {});
-
-      setChannels(channells);
-    })()
+    updateChannelList();
   }, [episodes]);
+
+  async function updateChannelList() {
+      const channells : Array<Channel> = await invoke('get_channels', {});
+      setChannels(channells);
+  }
 
   async function getEpisodesFromChannelIndex(channel_index : number) {
     const channel = channels[channel_index];
@@ -45,7 +46,7 @@ function App() {
 
   return (
     <div className="App">
-      <VirturlChannelRegister />
+      <VirturlChannelRegister onRegisterChannel={updateChannelList}/>
       <ChannelList
         channels={channels}
         onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}

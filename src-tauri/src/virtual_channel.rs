@@ -3,19 +3,18 @@ use std::path::Path;
 use crate::channel_manager::*;
 use crate::model::NewEpisode;
 
-fn add_virtual_channel(virtual_channel_path_str: String) -> Result<Vec<NewEpisode>, String> {
+pub fn add_virtual_channel(virtual_channel_path_str: String) -> Result<Vec<NewEpisode>, String> {
     let virtual_channel_path = Path::new(&virtual_channel_path_str);
     if virtual_channel_path.is_dir() {
 
         insert_channel(
             virtual_channel_path.canonicalize().unwrap().to_str().unwrap().to_string(),
             virtual_channel_path.file_stem().unwrap().to_str().unwrap().to_string()
-        ).expect("Channel insert error.");
+        )?;
 
         let new_episodes = find_new_episodes(virtual_channel_path_str);
 
-        insert_episodes(new_episodes.clone())
-            .expect("Episode insert error.");
+        insert_episodes(new_episodes.clone())?;
 
         Ok(new_episodes)
 
