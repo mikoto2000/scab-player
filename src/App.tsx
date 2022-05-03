@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke, convertFileSrc } from '@tauri-apps/api/tauri'
 
 import VirturlChannelRegister from './VirturlChannelRegister';
 import ChannelList from './ChannelList';
+import Player from './Player';
 import EpisodeList from './EpisodeList';
 
 type Channel = {
@@ -26,6 +27,7 @@ type Episode = {
 function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
+  const [playEpisodeUri, setPlayEpisodeUri] = useState("");
 
   useEffect(() => {
     updateChannelList();
@@ -44,6 +46,12 @@ function App() {
     setEpisodes(episodes);
   }
 
+  async function setEpisodeToPlayer(episodeUri : string) {
+    const audioFileUrl = convertFileSrc(episodeUri, 'stream');
+
+    setPlayEpisodeUri(audioFileUrl);
+  }
+
   return (
     <div className="App">
       <VirturlChannelRegister onRegisterChannel={updateChannelList}/>
@@ -51,8 +59,10 @@ function App() {
         channels={channels}
         onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
       />
+      <Player episode_uri={playEpisodeUri} />
       <EpisodeList
         episodes={episodes}
+        onEpisodeClick={setEpisodeToPlayer}
       />
     </div>
   );
