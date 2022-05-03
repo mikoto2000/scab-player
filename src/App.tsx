@@ -16,10 +16,10 @@ type Channel = {
 
 type Episode = {
   id: number,
-  channelName: string,
+  channel_name: string,
   uri: string,
   title: string,
-  currentTime: number,
+  current_time: number,
   isFinish: boolean
 };
 
@@ -28,6 +28,7 @@ function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
   const [playEpisodeUri, setPlayEpisodeUri] = useState("");
+  const [playEpisodeCurrentTime, setPlayEpisodeCurrentTime] = useState(0);
 
   useEffect(() => {
     updateChannelList();
@@ -46,10 +47,11 @@ function App() {
     setEpisodes(episodes);
   }
 
-  async function setEpisodeToPlayer(episodeUri : string) {
+  async function setEpisodeToPlayer(episodeUri : string, current_time : number) {
     const audioFileUrl = convertFileSrc(episodeUri, 'stream');
 
     setPlayEpisodeUri(audioFileUrl);
+    setPlayEpisodeCurrentTime(current_time);
   }
 
   return (
@@ -59,7 +61,10 @@ function App() {
         channels={channels}
         onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
       />
-      <Player episode_uri={playEpisodeUri} />
+      <Player
+        episodeUri={playEpisodeUri}
+        currentTime={playEpisodeCurrentTime}
+      />
       <EpisodeList
         episodes={episodes}
         onEpisodeClick={setEpisodeToPlayer}
