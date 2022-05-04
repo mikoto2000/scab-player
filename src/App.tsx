@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
 import './App.css';
 
 import { invoke, convertFileSrc } from '@tauri-apps/api/tauri'
