@@ -57,6 +57,24 @@ function App() {
     setPlayEpisodeCurrentTime(current_time);
   }
 
+  async function handleEnded(episodeIndex : number) {
+    updateEpisode(episodeIndex);
+    playNextEpisode(episodeIndex);
+  }
+
+  async function updateEpisode(episodeIndex : number) {
+    const id = episodes[episodeIndex].id;
+
+    invoke('update_episode', {
+      episode: {
+        id: id,
+        current_time: 0,
+        is_finish: true,
+      }})
+        .then((e) => { console.log(e)})
+        .catch((err) => { console.log(err)});
+  }
+
   async function playNextEpisode(episodeIndex : number) {
       console.log(episodeIndex);
 
@@ -83,7 +101,7 @@ function App() {
         episodeIndex={playEpisodeIndex}
         episodeUri={playEpisodeUri}
         currentTime={playEpisodeCurrentTime}
-        onEnded={playNextEpisode}
+        onEnded={handleEnded}
       />
       <EpisodeList
         episodes={episodes}

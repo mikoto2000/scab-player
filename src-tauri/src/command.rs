@@ -5,6 +5,7 @@ use crate::virtual_channel;
 use crate::model::Channel;
 use crate::model::Episode;
 use crate::model::NewEpisode;
+use crate::model::UpdateEpisode;
 
 #[tauri::command]
 pub fn get_channels() -> Vec<Channel> {
@@ -24,5 +25,10 @@ pub fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
 #[tauri::command]
 pub fn add_virtual_channel(new_channel: String) -> Result<Vec<NewEpisode>, String> {
     virtual_channel::add_virtual_channel(new_channel)
+}
+
+#[tauri::command]
+pub fn update_episode(episode : UpdateEpisode) -> Result<usize, String> {
+    channel_manager::update_episode(episode)
 }
 
