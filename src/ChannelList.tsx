@@ -19,12 +19,12 @@ function ChannelList(props : ChannelListProps) {
         key={channel.uri}
         onClick={() => props.onClick(channel_index)}
         >
-        {channel.name}({channel.uri})</li>
+        {channel.name}</li>
   });
 
   return (
     <div className="ChannelList">
-      <h1>購読チャンネル一覧</h1>
+      <h1>Subscribed channels:</h1>
       <ul>
         {channelList}
       </ul>

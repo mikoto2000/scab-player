@@ -52,12 +52,12 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
   }
 
   const episodes = findEpisodes.map((e) => {
-    return <li key={e.uri}>{JSON.stringify(e)}</li>
+    return <li key={e.uri}>{e.title}</li>
   });
 
   return (
     <div className="VirtualChannelRegister">
-      <h1>選択チャンネル</h1>
+      <h1>Selected channel</h1>
       <div>
         <h2>Virtual Channel: </h2>
         <div>{channelBaseDirectory}</div>
