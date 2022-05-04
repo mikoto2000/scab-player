@@ -30,6 +30,7 @@ function App() {
   const [playEpisodeIndex, setPlayEpisodeIndex] = useState(0);
   const [playEpisodeUri, setPlayEpisodeUri] = useState("");
   const [playEpisodeCurrentTime, setPlayEpisodeCurrentTime] = useState(0);
+  const [isAutoPlay, setIsAutoPlay] = useState(true);
 
   useEffect(() => {
     updateChannelList();
@@ -62,7 +63,11 @@ function App() {
       const nextEpisodeIndex = episodeIndex + 1;
       const nextEpisode = episodes[nextEpisodeIndex];
 
-      setEpisodeToPlayer(nextEpisodeIndex, nextEpisode.uri, nextEpisode.current_time);
+      if (nextEpisode != null) {
+        setEpisodeToPlayer(nextEpisodeIndex, nextEpisode.uri, nextEpisode.current_time);
+      } else {
+        setIsAutoPlay(false);
+      }
   }
 
 
@@ -74,6 +79,7 @@ function App() {
         onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
       />
       <Player
+        isAutoPlay={isAutoPlay}
         episodeIndex={playEpisodeIndex}
         episodeUri={playEpisodeUri}
         currentTime={playEpisodeCurrentTime}
