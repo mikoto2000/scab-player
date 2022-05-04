@@ -71,6 +71,23 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
     }
 }
 
+use crate::model::UpdateEpisode;
+
+pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
+    use crate::schema::episode;
+    use crate::sqlite3::establish_connection;
+
+    let conn = establish_connection();
+
+    let update_result = diesel::update(episode::table)
+        .set(update_episode)
+        .execute(&conn);
+
+    match update_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(update_row_count) => Ok(update_row_count)
+    }
+}
 
 #[cfg(test)]
 mod channel_manager_tests {
@@ -179,6 +196,33 @@ mod channel_manager_tests {
         assert_eq!(second_episode.uri, "episode_uri_2");
         assert_eq!(first_episode.current_time, None);
         assert_eq!(first_episode.is_finish, false);
+
+        after();
+    }
+
+    #[test]
+    fn test_update_episodes() {
+        before();
+
+        run_sql_from_file("./test/channel_manager/test_update_episodes.sql", "./assets/scab-player.db");
+
+        let episode = UpdateEpisode {
+            id: 1,
+            current_time: Some(255),
+            is_finish: true
+        };
+
+        let update_count = update_episode(episode);
+        assert_eq!(update_count.unwrap(), 1);
+
+        let episodes = get_episodes("channel_uri".to_string());
+        let first_episode = episodes.first().unwrap();
+        assert_eq!(first_episode.id, 1);
+        assert_eq!(first_episode.channel_name, "channel_name");
+        assert_eq!(first_episode.title, "episode_title");
+        assert_eq!(first_episode.uri, "episode_uri");
+        assert_eq!(first_episode.current_time, Some(255));
+        assert_eq!(first_episode.is_finish, true);
 
         after();
     }

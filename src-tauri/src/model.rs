@@ -28,6 +28,14 @@ pub struct Episode {
     pub is_finish: bool
 }
 
+#[derive(AsChangeset, Serialize, Deserialize, Debug)]
+#[table_name="episode"]
+pub struct UpdateEpisode {
+    pub id: i32,
+    pub current_time: Option<i32>,
+    pub is_finish: bool
+}
+
 #[derive(Serialize, Deserialize, Insertable, Debug, Clone)]
 #[table_name = "episode"]
 pub struct NewEpisode {
