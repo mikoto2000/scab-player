@@ -6,10 +6,14 @@ type PlayerProps = {
   episodeUri: string,
   currentTime: number,
   onEnded: (episodeIndex : number) => void,
-  onPause: (currentTime : number) => void
 };
 
-const Player = forwardRef((props : PlayerProps, ref : any) => {
+export type PlayerType = {
+  getCurrentTime: () => number
+}
+
+
+export const Player = forwardRef((props : PlayerProps, ref : any) => {
   const audioElement = useRef<HTMLAudioElement>(null!);
 
   useEffect(() => {
@@ -29,7 +33,6 @@ const Player = forwardRef((props : PlayerProps, ref : any) => {
         autoPlay={props.isAutoPlay}
         controls src={props.episodeUri}
         onEnded={(e) => { props.onEnded(props.episodeIndex) }}
-        onPause={(e) => { props.onPause(props.episodeIndex) }}
         ref={audioElement}
       />
     </div>
@@ -37,6 +40,4 @@ const Player = forwardRef((props : PlayerProps, ref : any) => {
 });
 
 export default Player;
-
-
 

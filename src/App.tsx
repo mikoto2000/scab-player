@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 import { invoke, convertFileSrc } from '@tauri-apps/api/tauri'
+import { appWindow } from '@tauri-apps/api/window'
 
 import VirturlChannelRegister from './VirturlChannelRegister';
 import ChannelList from './ChannelList';
-import Player from './Player';
+import { Player, PlayerType } from './Player';
 import EpisodeList from './EpisodeList';
 
 type Channel = {
@@ -28,10 +29,6 @@ type UpdateEpisode = {
   is_finish: boolean
 };
 
-type Player = {
-  getCurrentTime: () => number
-}
-
 
 function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
@@ -40,11 +37,27 @@ function App() {
   const [playEpisodeUri, setPlayEpisodeUri] = useState("");
   const [playEpisodeCurrentTime, setPlayEpisodeCurrentTime] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  const playerElement = useRef<Player>(null!);
+  const playerElement = useRef<PlayerType>(null!);
 
   useEffect(() => {
     updateChannelList();
-  }, [episodes]);
+
+    appWindow.listen('tauri://close-requested', async ({ event, payload }) => {
+
+      const currentEpisode = episodes[playEpisodeIndex];
+      if (currentEpisode == null) {
+        return;
+      }
+      await updateEpisode({
+        id: currentEpisode.id,
+        current_time: Math.floor(playerElement.current.getCurrentTime()),
+        is_finish: currentEpisode.is_finish
+      });
+
+      appWindow.close()
+    });
+
+  }, [episodes, playEpisodeIndex]);
 
   async function updateChannelList() {
       const channells : Array<Channel> = await invoke('get_channels', {});
@@ -83,14 +96,6 @@ function App() {
         .catch((err) => { console.log(err)});
   }
 
-  async function handlePause(episodeIndex: number) {
-    updateEpisode({
-        id: episodes[episodeIndex].id,
-        current_time: Math.floor(playerElement.current.getCurrentTime()),
-        is_finish: false
-      });
-  }
-
   async function handleEpisodeClick(episodeIndex: number, episodeUri : string, current_time : number) {
 
     // 初回選択時など、 oldEpisode が無ければ oldEpisode の更新をしない
@@ -99,7 +104,7 @@ function App() {
       const currentEpisode = episodes[episodeIndex];
 
       // 同じエピソードがクリックされている場合、何もしない
-      if (oldEpisode.id == currentEpisode.id) {
+      if (oldEpisode.id === currentEpisode.id) {
           return;
       }
 
@@ -142,7 +147,6 @@ function App() {
         episodeUri={playEpisodeUri}
         currentTime={playEpisodeCurrentTime}
         onEnded={handleEnded}
-        onPause={handlePause}
         ref={playerElement}
       />
       <EpisodeList
