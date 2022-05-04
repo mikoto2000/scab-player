@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 import { invoke, convertFileSrc } from '@tauri-apps/api/tauri'
@@ -28,6 +28,10 @@ type UpdateEpisode = {
   is_finish: boolean
 };
 
+type Player = {
+  getCurrentTime: () => number
+}
+
 
 function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
@@ -36,15 +40,11 @@ function App() {
   const [playEpisodeUri, setPlayEpisodeUri] = useState("");
   const [playEpisodeCurrentTime, setPlayEpisodeCurrentTime] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
-  let playerCurrentTime = 0;
+  const playerElement = useRef<Player>(null!);
 
   useEffect(() => {
     updateChannelList();
   }, [episodes]);
-
-  async function updatePlayEpisodeCurrentTime(currentTime : number) {
-    playerCurrentTime = currentTime;
-  }
 
   async function updateChannelList() {
       const channells : Array<Channel> = await invoke('get_channels', {});
@@ -86,7 +86,7 @@ function App() {
   async function handlePause(episodeIndex: number) {
     updateEpisode({
         id: episodes[episodeIndex].id,
-        current_time: Math.floor(playerCurrentTime),
+        current_time: Math.floor(playerElement.current.getCurrentTime()),
         is_finish: false
       });
   }
@@ -104,9 +104,10 @@ function App() {
       }
 
       // oldEpisode の情報更新
+      // audio 要素から currentTime を引っ張ってきて、「ここまで再生したよ」を記録する。
       updateEpisode({
           id: oldEpisode.id,
-          current_time: Math.floor(playerCurrentTime),
+          current_time: Math.floor(playerElement.current.getCurrentTime()),
           is_finish: oldEpisode.is_finish
         });
     }
@@ -142,7 +143,7 @@ function App() {
         currentTime={playEpisodeCurrentTime}
         onEnded={handleEnded}
         onPause={handlePause}
-        onUpdateCurrentTime={updatePlayEpisodeCurrentTime}
+        ref={playerElement}
       />
       <EpisodeList
         episodes={episodes}

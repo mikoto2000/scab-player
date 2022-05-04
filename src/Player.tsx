@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
 type PlayerProps = {
   isAutoPlay: boolean,
@@ -6,11 +6,21 @@ type PlayerProps = {
   episodeUri: string,
   currentTime: number,
   onEnded: (episodeIndex : number) => void,
-  onPause: (currentTime : number) => void,
-  onUpdateCurrentTime: (currentTime : number) => void
+  onPause: (currentTime : number) => void
 };
 
-function Player(props : PlayerProps) {
+const Player = forwardRef((props : PlayerProps, ref : any) => {
+  const audioElement = useRef<HTMLAudioElement>(null!);
+
+  useEffect(() => {
+    audioElement.current.currentTime = props.currentTime;
+  });
+
+  useImperativeHandle(ref, () => ({
+    getCurrentTime: () => {
+      return audioElement.current.currentTime;
+    }
+  }));
 
   return (
     <div className="Player">
@@ -20,20 +30,11 @@ function Player(props : PlayerProps) {
         controls src={props.episodeUri}
         onEnded={(e) => { props.onEnded(props.episodeIndex) }}
         onPause={(e) => { props.onPause(props.episodeIndex) }}
-        onTimeUpdate={(e) => {
-          if (e.currentTarget != null) {
-            if (e.currentTarget instanceof HTMLMediaElement) {
-              props.onUpdateCurrentTime(e.currentTarget.currentTime);
-            }
-          }
-        }}
-        ref={ (e : HTMLAudioElement) => { if (e != null) {
-          e.currentTime=props.currentTime;
-        }}}
+        ref={audioElement}
       />
     </div>
   );
-}
+});
 
 export default Player;
 
