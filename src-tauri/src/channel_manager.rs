@@ -79,7 +79,7 @@ pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
 
     let conn = establish_connection();
 
-    let update_result = diesel::update(episode::table)
+    let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
         .set(update_episode)
         .execute(&conn);
 
@@ -194,8 +194,8 @@ mod channel_manager_tests {
         assert_eq!(second_episode.channel_name, "channel_name");
         assert_eq!(second_episode.title, "episode_title_2");
         assert_eq!(second_episode.uri, "episode_uri_2");
-        assert_eq!(first_episode.current_time, None);
-        assert_eq!(first_episode.is_finish, false);
+        assert_eq!(second_episode.current_time, None);
+        assert_eq!(second_episode.is_finish, false);
 
         after();
     }
@@ -213,9 +213,8 @@ mod channel_manager_tests {
         };
 
         let update_count = update_episode(episode);
-        assert_eq!(update_count.unwrap(), 1);
-
         let episodes = get_episodes("channel_uri".to_string());
+        println!("{:#?}", episodes);
         let first_episode = episodes.first().unwrap();
         assert_eq!(first_episode.id, 1);
         assert_eq!(first_episode.channel_name, "channel_name");
@@ -223,6 +222,14 @@ mod channel_manager_tests {
         assert_eq!(first_episode.uri, "episode_uri");
         assert_eq!(first_episode.current_time, Some(255));
         assert_eq!(first_episode.is_finish, true);
+
+        let second_episode = episodes.get(1).unwrap();
+        assert_eq!(second_episode.id, 2);
+        assert_eq!(second_episode.channel_name, "channel_name");
+        assert_eq!(second_episode.title, "non_target_episode_title");
+        assert_eq!(second_episode.uri, "non_target_episode_uri");
+        assert_eq!(second_episode.current_time, None);
+        assert_eq!(second_episode.is_finish, false);
 
         after();
     }

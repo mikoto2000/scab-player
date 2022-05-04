@@ -11,7 +11,7 @@ type Episode = {
   uri: string,
   title: string,
   current_time: number,
-  isFinish: boolean
+  is_finish: boolean
 };
 
 function EpisodeList(props : EpisodeListProps) {
@@ -20,7 +20,9 @@ function EpisodeList(props : EpisodeListProps) {
     return <li onClick={() => { props.onEpisodeClick(episode_index, episode.uri, episode.current_time) }}
         key={episode.uri}
         >
-        {JSON.stringify(episode)}</li>
+        {episode.is_finish ? '☑' : '☐' } : { episode.title }
+        </li>
+
   });
 
   return (

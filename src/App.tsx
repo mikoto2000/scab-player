@@ -19,7 +19,7 @@ type Episode = {
   uri: string,
   title: string,
   current_time: number,
-  isFinish: boolean
+  is_finish: boolean
 };
 
 
