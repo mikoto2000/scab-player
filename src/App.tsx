@@ -64,7 +64,7 @@ function App() {
       const nextEpisode = episodes[nextEpisodeIndex];
 
       if (nextEpisode != null) {
-        setEpisodeToPlayer(nextEpisodeIndex, nextEpisode.uri, nextEpisode.current_time);
+        setEpisodeToPlayer(nextEpisodeIndex, nextEpisode.uri, 0);
       } else {
         setIsAutoPlay(false);
       }
