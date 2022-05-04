@@ -57,6 +57,7 @@ function App() {
   }
 
   async function handleEnded(episodeIndex : number) {
+    episodes[episodeIndex].is_finish = true;
     updateEpisode(episodeIndex);
     playNextEpisode(episodeIndex);
   }
