@@ -27,6 +27,7 @@ type Episode = {
 function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
+  const [playEpisodeIndex, setPlayEpisodeIndex] = useState(0);
   const [playEpisodeUri, setPlayEpisodeUri] = useState("");
   const [playEpisodeCurrentTime, setPlayEpisodeCurrentTime] = useState(0);
 
@@ -47,12 +48,23 @@ function App() {
     setEpisodes(episodes);
   }
 
-  async function setEpisodeToPlayer(episodeUri : string, current_time : number) {
+  async function setEpisodeToPlayer(episodeIndex: number, episodeUri : string, current_time : number) {
     const audioFileUrl = convertFileSrc(episodeUri, 'stream');
 
+    setPlayEpisodeIndex(episodeIndex);
     setPlayEpisodeUri(audioFileUrl);
     setPlayEpisodeCurrentTime(current_time);
   }
+
+  async function playNextEpisode(episodeIndex : number) {
+      console.log(episodeIndex);
+
+      const nextEpisodeIndex = episodeIndex + 1;
+      const nextEpisode = episodes[nextEpisodeIndex];
+
+      setEpisodeToPlayer(nextEpisodeIndex, nextEpisode.uri, nextEpisode.current_time);
+  }
+
 
   return (
     <div className="App">
@@ -62,8 +74,10 @@ function App() {
         onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
       />
       <Player
+        episodeIndex={playEpisodeIndex}
         episodeUri={playEpisodeUri}
         currentTime={playEpisodeCurrentTime}
+        onEnded={playNextEpisode}
       />
       <EpisodeList
         episodes={episodes}

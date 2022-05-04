@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 type PlayerProps = {
+  episodeIndex: number,
   episodeUri: string,
-  currentTime: number
+  currentTime: number,
+  onEnded: (episodeIndex : number) => void
 };
 
 function Player(props : PlayerProps) {
@@ -10,7 +12,7 @@ function Player(props : PlayerProps) {
   return (
     <div className="Player">
       <h1>プレイヤー</h1>
-      <audio controls src={props.episodeUri}
+      <audio autoPlay controls src={props.episodeUri} onEnded={(e) => { props.onEnded(props.episodeIndex) }}
         ref={ (e : HTMLAudioElement) => { if (e != null) { e.currentTime=props.currentTime }}}
       />
     </div>

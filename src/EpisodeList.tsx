@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 type EpisodeListProps = {
   episodes: Array<Episode>,
-  onEpisodeClick : (episodeUri : string, current_time : number) => void
+  onEpisodeClick : (episodeIndex : number, episodeUri : string, current_time : number) => void
 };
 
 type Episode = {
@@ -16,12 +16,8 @@ type Episode = {
 
 function EpisodeList(props : EpisodeListProps) {
 
-  async function onEpisodeClick(episodeUri : string, current_time : number) {
-    props.onEpisodeClick(episodeUri, current_time);
-  }
-
   const episodeList = props.episodes.map((episode, episode_index) => {
-    return <li onClick={() => { onEpisodeClick(episode.uri, episode.current_time) }}
+    return <li onClick={() => { props.onEpisodeClick(episode_index, episode.uri, episode.current_time) }}
         key={episode.uri}
         >
         {JSON.stringify(episode)}</li>
