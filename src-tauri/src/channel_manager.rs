@@ -214,7 +214,6 @@ mod channel_manager_tests {
 
         let update_count = update_episode(episode);
         let episodes = get_episodes("channel_uri".to_string());
-        println!("{:#?}", episodes);
         let first_episode = episodes.first().unwrap();
         assert_eq!(first_episode.id, 1);
         assert_eq!(first_episode.channel_name, "channel_name");
