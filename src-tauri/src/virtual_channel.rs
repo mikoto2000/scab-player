@@ -31,7 +31,7 @@ pub fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
         .filter_map(|e| {
             let unwraped_e = e.unwrap();
             let path = unwraped_e.path().canonicalize().unwrap();
-            if path.is_file() && path.extension().unwrap() == "mp3" {
+            if path.is_file() && vec!["mp3", "wav"].contains(&path.extension().unwrap().to_str().unwrap()) {
                 let uri = path.to_str().unwrap().to_string();
                 let title = path.file_stem().unwrap().to_str().unwrap().to_string();
 

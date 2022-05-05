@@ -109,7 +109,7 @@ fn main() {
       }
 
       // 読み込んだ内容をレスポンスへ
-      response.mimetype("audio/mp3").status(status_code).body(buf)
+      response.mimetype("audio").status(status_code).body(buf)
     })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
