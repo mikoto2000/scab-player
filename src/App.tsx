@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
-import { invoke, convertFileSrc } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/tauri'
 import { appWindow } from '@tauri-apps/api/window'
 
 import VirturlChannelRegister from './VirturlChannelRegister';
@@ -34,8 +34,6 @@ function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
   const [playEpisodeIndex, setPlayEpisodeIndex] = useState(-1);
-  const [playEpisodeUri, setPlayEpisodeUri] = useState("");
-  const [playEpisodeCurrentTime, setPlayEpisodeCurrentTime] = useState(0);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const playerElement = useRef<PlayerType>(null!);
 
@@ -72,15 +70,8 @@ function App() {
     setEpisodes(episodes);
   }
 
-  async function setEpisodeToPlayer(episodeIndex: number, episodeUri : string, current_time : number) {
-    const audioFileUrl = convertFileSrc(episodeUri, 'stream');
-
-    setPlayEpisodeIndex(episodeIndex);
-    setPlayEpisodeUri(audioFileUrl);
-    setPlayEpisodeCurrentTime(current_time);
-  }
-
   async function handleEnded(episodeIndex : number) {
+    episodes[episodeIndex].current_time = 0;
     episodes[episodeIndex].is_finish = true;
     updateEpisode({
         id: episodes[episodeIndex].id,
@@ -96,7 +87,7 @@ function App() {
         .catch((err) => { console.log(err)});
   }
 
-  async function handleEpisodeClick(episodeIndex: number, episodeUri : string, current_time : number) {
+  async function handleEpisodeClick(episodeIndex: number) {
 
     // 初回選択時など、 oldEpisode が無ければ oldEpisode の更新をしない
     if (playEpisodeIndex >= 0) {
@@ -120,7 +111,7 @@ function App() {
     }
 
     // 選択したエピソードをプレイヤーで再生
-    setEpisodeToPlayer(episodeIndex, episodeUri, current_time);
+    setPlayEpisodeIndex(episodeIndex);
   }
 
   async function playNextEpisode(episodeIndex : number) {
@@ -129,7 +120,9 @@ function App() {
       const nextEpisode = episodes[nextEpisodeIndex];
 
       if (nextEpisode != null) {
-        setEpisodeToPlayer(nextEpisodeIndex, nextEpisode.uri, 0);
+        // 継続再生の場合は、戦闘から再生する
+        nextEpisode.current_time = 0;
+        setPlayEpisodeIndex(nextEpisodeIndex);
       } else {
         setIsAutoPlay(false);
       }
@@ -146,8 +139,7 @@ function App() {
       <Player
         isAutoPlay={isAutoPlay}
         episodeIndex={playEpisodeIndex}
-        episodeUri={playEpisodeUri}
-        currentTime={playEpisodeCurrentTime}
+        episode={episodes[playEpisodeIndex] || null}
         onEnded={handleEnded}
         ref={playerElement}
       />

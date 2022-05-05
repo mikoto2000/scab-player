@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 type EpisodeListProps = {
   episodes: Array<Episode>,
-  onEpisodeClick : (episodeIndex : number, episodeUri : string, current_time : number) => void
+  onEpisodeClick : (episodeIndex : number) => void
 };
 
 type Episode = {
@@ -27,7 +27,7 @@ function EpisodeList(props : EpisodeListProps) {
 
   const episodeList = props.episodes.map((episode, episode_index) => {
 
-    return <li onClick={() => { props.onEpisodeClick(episode_index, episode.uri, episode.current_time) }}
+    return <li onClick={() => { props.onEpisodeClick(episode_index) }}
         key={episode.uri}
         >
           {getEpisodeIcon(episode)} : {episode.title}
