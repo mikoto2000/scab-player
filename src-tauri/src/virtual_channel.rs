@@ -9,7 +9,7 @@ pub fn add_virtual_channel(virtual_channel_path_str: String) -> Result<Vec<NewEp
 
         insert_channel(
             virtual_channel_path.canonicalize().unwrap().to_str().unwrap().to_string(),
-            virtual_channel_path.file_stem().unwrap().to_str().unwrap().to_string()
+            virtual_channel_path.file_name().unwrap().to_str().unwrap().to_string()
         )?;
 
         let new_episodes = find_new_episodes(virtual_channel_path_str);
