@@ -103,6 +103,8 @@ function App() {
       const oldEpisode = episodes[playEpisodeIndex];
       const currentEpisode = episodes[episodeIndex];
 
+      oldEpisode.current_time = Math.floor(playerElement.current.getCurrentTime());
+
       // 同じエピソードがクリックされている場合、何もしない
       if (oldEpisode.id === currentEpisode.id) {
           return;

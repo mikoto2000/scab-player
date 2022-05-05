@@ -15,6 +15,7 @@ type Episode = {
 };
 
 function getEpisodeIcon(episode : Episode) {
+
   if (episode.current_time == null) {
     return "🆕";
   }
@@ -25,11 +26,11 @@ function getEpisodeIcon(episode : Episode) {
 function EpisodeList(props : EpisodeListProps) {
 
   const episodeList = props.episodes.map((episode, episode_index) => {
+
     return <li onClick={() => { props.onEpisodeClick(episode_index, episode.uri, episode.current_time) }}
         key={episode.uri}
         >
-        {JSON.stringify(episode)}<br/>
-          {getEpisodeIcon(episode)} : { episode.title}
+          {getEpisodeIcon(episode)} : {episode.title}
         </li>
 
   });
