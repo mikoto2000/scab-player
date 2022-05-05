@@ -44,15 +44,15 @@ function App() {
 
     appWindow.listen('tauri://close-requested', async ({ event, payload }) => {
 
+      // 再生中エピソードがあるときのみ再生情報の更新を行う
       const currentEpisode = episodes[playEpisodeIndex];
-      if (currentEpisode == null) {
-        return;
+      if (currentEpisode != null) {
+        await updateEpisode({
+          id: currentEpisode.id,
+          current_time: Math.floor(playerElement.current.getCurrentTime()),
+          is_finish: currentEpisode.is_finish
+        });
       }
-      await updateEpisode({
-        id: currentEpisode.id,
-        current_time: Math.floor(playerElement.current.getCurrentTime()),
-        is_finish: currentEpisode.is_finish
-      });
 
       appWindow.close()
     });
