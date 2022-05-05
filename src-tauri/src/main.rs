@@ -6,6 +6,7 @@
 #[macro_use]
 extern crate diesel;
 
+mod app_initializer;
 mod channel_manager;
 mod command;
 mod model;
@@ -15,6 +16,11 @@ mod virtual_channel;
 
 fn main() {
   tauri::Builder::default()
+    .setup( |app| {
+        app_initializer::init_db(app);
+
+        Ok(())
+    })
     .invoke_handler(
         tauri::generate_handler![
             command::get_channels,
