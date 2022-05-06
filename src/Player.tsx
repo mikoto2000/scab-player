@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } f
 
 import { convertFileSrc } from '@tauri-apps/api/tauri'
 
+import { Episode } from './CommonAppTypes'
+
 type PlayerProps = {
   isAutoPlay: boolean,
   episodeIndex: number,
@@ -12,15 +14,6 @@ type PlayerProps = {
 export type PlayerType = {
   getCurrentTime: () => number
 }
-
-type Episode = {
-  id: number,
-  channel_name: string,
-  uri: string,
-  title: string,
-  current_time: number,
-  is_finish: boolean
-};
 
 export const Player = forwardRef((props : PlayerProps, ref : any) => {
   const audioElement = useRef<HTMLAudioElement>(null!);

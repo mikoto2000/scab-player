@@ -2,17 +2,14 @@ import React, { useState, useEffect } from 'react';
 
 import { invoke } from '@tauri-apps/api/tauri'
 
-type Channel = {
-  uri: string,
-  name: string
-};
+import { Channel } from './CommonAppTypes'
 
 type ChannelListProps = {
   channels: Array<Channel>,
   onClick: (channel_index: number) => void
 };
 
-function ChannelList(props : ChannelListProps) {
+export function ChannelList(props : ChannelListProps) {
 
   const channelList = props.channels.map((channel, channel_index) => {
     return <li
@@ -31,6 +28,4 @@ function ChannelList(props : ChannelListProps) {
     </div>
   );
 }
-
-export default ChannelList;
 

@@ -3,11 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { dialog } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/tauri'
 
-type Episode = {
-    channelUri: string,
-    title: string,
-    uri: string
-};
+import { Episode } from './CommonAppTypes'
 
 type VirtualChannelRegisterProps = {
   onRegisterChannel: () => void

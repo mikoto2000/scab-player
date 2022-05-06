@@ -6,24 +6,12 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/tauri'
 import { appWindow } from '@tauri-apps/api/window'
 
+import { Channel, Episode } from './CommonAppTypes'
+
 import VirtualChannelRegister from './VirtualChannelRegister';
-import ChannelList from './ChannelList';
+import { ChannelList } from './ChannelList';
 import { Player, PlayerType } from './Player';
-import EpisodeList from './EpisodeList';
-
-type Channel = {
-  uri: string,
-  name: string
-};
-
-type Episode = {
-  id: number,
-  channel_name: string,
-  uri: string,
-  title: string,
-  current_time: number,
-  is_finish: boolean
-};
+import { EpisodeList } from './EpisodeList';
 
 type UpdateEpisode = {
   id: number,
