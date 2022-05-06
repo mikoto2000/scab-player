@@ -61,16 +61,16 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
       <div>
         <h2>Virtual Channel: </h2>
         <div>{channelBaseDirectory}</div>
+        <button onClick={selectChannelBaseDirectory} >チャンネル選択</button>
+        <button onClick={addNewChannel}>チャンネル登録</button>
+        <div>
+            {addChannelResultMessage}
+        </div>
         <h2>Episodes:</h2>
         <div>
           <ol>
             <div>{episodes}</div>
           </ol>
-        </div>
-        <button onClick={selectChannelBaseDirectory} >チャンネル選択</button>
-        <button onClick={addNewChannel}>チャンネル登録</button>
-        <div>
-            {addChannelResultMessage}
         </div>
       </div>
     </div>
