@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Routes, Route, Link } from "react-router-dom";
+
 import './App.css';
 
 import { invoke } from '@tauri-apps/api/tauri'
@@ -131,22 +133,34 @@ function App() {
 
   return (
     <div className="App">
-      <VirtualChannelRegister onRegisterChannel={updateChannelList}/>
-      <ChannelList
-        channels={channels}
-        onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
-      />
-      <Player
-        isAutoPlay={isAutoPlay}
-        episodeIndex={playEpisodeIndex}
-        episode={episodes[playEpisodeIndex] || null}
-        onEnded={handleEnded}
-        ref={playerElement}
-      />
-      <EpisodeList
-        episodes={episodes}
-        onEpisodeClick={handleEpisodeClick}
-      />
+      <Routes>
+        <Route path="/virtual_channel_register" element={
+          <React.Fragment>
+            <Link to="/">←</Link>
+            <VirtualChannelRegister onRegisterChannel={updateChannelList}/>
+          </React.Fragment>
+        } />
+        <Route path="/" element={
+          <React.Fragment>
+            <Link to="virtual_channel_register">+</Link>
+            <ChannelList
+              channels={channels}
+              onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
+            />
+            <Player
+              isAutoPlay={isAutoPlay}
+              episodeIndex={playEpisodeIndex}
+              episode={episodes[playEpisodeIndex] || null}
+              onEnded={handleEnded}
+              ref={playerElement}
+            />
+            <EpisodeList
+              episodes={episodes}
+              onEpisodeClick={handleEpisodeClick}
+            />
+          </React.Fragment>
+        } />
+      </Routes>
     </div>
   );
 }
