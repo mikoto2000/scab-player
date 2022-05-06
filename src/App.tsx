@@ -68,6 +68,8 @@ function App() {
     const episodes : Array<Episode> = await invoke('get_episodes', { channelUri: channel.uri });
 
     setEpisodes(episodes);
+    setPlayEpisodeIndex(-1);
+    setIsAutoPlay(false);
 
     navigate("/episodes");
   }
