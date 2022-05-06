@@ -133,16 +133,19 @@ function App() {
 
   return (
     <div className="App">
+      <div>
+        <Link to="virtual_channel_register">仮想チャンネル登録</Link>
+        &nbsp; - &nbsp;
+        <Link to="/">エピソード再生</Link>
+      </div>
       <Routes>
         <Route path="/virtual_channel_register" element={
           <React.Fragment>
-            <Link to="/">←</Link>
             <VirtualChannelRegister onRegisterChannel={updateChannelList}/>
           </React.Fragment>
         } />
         <Route path="/" element={
           <React.Fragment>
-            <Link to="virtual_channel_register">+</Link>
             <ChannelList
               channels={channels}
               onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
