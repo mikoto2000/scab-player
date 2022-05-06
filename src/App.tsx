@@ -108,6 +108,7 @@ function App() {
 
       // oldEpisode の情報更新
       // audio 要素から currentTime を引っ張ってきて、「ここまで再生したよ」を記録する。
+      currentEpisode.current_time = 0;
       updateEpisode({
           id: oldEpisode.id,
           current_time: Math.floor(playerElement.current.getCurrentTime()),
