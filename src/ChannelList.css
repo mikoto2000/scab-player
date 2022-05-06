@@ -1,0 +1,21 @@
+.ChannelList ul {
+  text-align: left;
+  margin: 0px;
+  padding: 1em;
+}
+
+.ChannelList ul > li {
+  list-style: "";
+  padding: 0.25em;
+  cursor: pointer;
+  border-style: solid;
+  border-width: 1px;
+  border-bottom-width: 0px;
+  border-color: lightgray;
+}
+
+.ChannelList ul > li:last-child {
+  border-width: 1px;
+  border-color: lightgray;
+}
+

@@ -1,0 +1,21 @@
+.EpisodeList ul {
+  text-align: left;
+  margin: 0px;
+  padding: 1em;
+}
+
+.EpisodeList ul > li {
+  list-style: "";
+  padding: 0.25em;
+  cursor: pointer;
+  border-style: solid;
+  border-width: 1px;
+  border-bottom-width: 0px;
+  border-color: lightgray;
+}
+
+.EpisodeList ul > li:last-child {
+  border-width: 1px;
+  border-color: lightgray;
+}
+

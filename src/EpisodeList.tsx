@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
+import './EpisodeList.css'
 import { Episode } from './CommonAppTypes'
 
 type EpisodeListProps = {

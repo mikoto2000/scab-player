@@ -1,4 +1,7 @@
 .App {
+}
+
+.App > nav {
   text-align: center;
 }
 

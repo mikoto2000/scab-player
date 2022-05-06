@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { dialog } from '@tauri-apps/api'
 import { invoke } from '@tauri-apps/api/tauri'
 
+import './VirtualChannelRegister.css'
 import { Episode } from './CommonAppTypes'
 
 type VirtualChannelRegisterProps = {
@@ -53,12 +54,14 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
 
   return (
     <div className="VirtualChannelRegister">
-      <h1>Selected channel</h1>
+      <h1>Channel select</h1>
       <div>
-        <h2>Virtual Channel: </h2>
+        <h2>Channel: </h2>
         <div>{channelBaseDirectory}</div>
-        <button onClick={selectChannelBaseDirectory} >チャンネル選択</button>
-        <button onClick={addNewChannel}>チャンネル登録</button>
+        <div>
+          <button onClick={selectChannelBaseDirectory} >チャンネル選択</button>
+          <button onClick={addNewChannel}>チャンネル登録</button>
+        </div>
         <div>
             {addChannelResultMessage}
         </div>

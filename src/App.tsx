@@ -124,7 +124,9 @@ function App() {
       <nav>
         <Link to="virtual_channel_register">仮想チャンネル登録</Link>
         &nbsp; - &nbsp;
-        <Link to="/">エピソード再生</Link>
+        <Link to="/">チャンネル選択</Link>
+        &nbsp; - &nbsp;
+        <Link to="/episodes">エピソード再生</Link>
       </nav>
       <Routes>
         <Route path="/virtual_channel_register" element={
@@ -138,6 +140,10 @@ function App() {
               channels={channels}
               onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
             />
+          </React.Fragment>
+        } />
+        <Route path="/episodes" element={
+          <React.Fragment>
             <Player
               isAutoPlay={isAutoPlay}
               episodeIndex={playEpisodeIndex}
