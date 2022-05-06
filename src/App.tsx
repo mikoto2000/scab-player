@@ -53,6 +53,15 @@ function App() {
       setChannels(channells);
   }
 
+  async function handleNavClick(episodeIndex : number) {
+    episodes[episodeIndex].current_time = playerElement.current.getCurrentTime();
+    updateEpisode({
+        id: episodes[episodeIndex].id,
+        current_time: Math.floor(playerElement.current.getCurrentTime()),
+        is_finish: episodes[episodeIndex].is_finish,
+      });
+  }
+
   async function handleChannelClick(channel_index : number) {
     const channel = channels[channel_index];
 
@@ -127,12 +136,19 @@ function App() {
   return (
     <div className="App">
       <nav>
-        <Link to="virtual_channel_register">仮想チャンネル登録</Link>
+        <Link onClick={() => handleNavClick(playEpisodeIndex) } to="virtual_channel_register" >仮想チャンネル登録</Link>
         &nbsp; - &nbsp;
-        <Link to="/">チャンネル選択</Link>
+        <Link onClick={() => handleNavClick(playEpisodeIndex) } to="/" >チャンネル選択</Link>
         &nbsp; - &nbsp;
-        <Link to="/episodes">エピソード再生</Link>
+        <Link onClick={() => handleNavClick(playEpisodeIndex) } to="/episodes">エピソード再生</Link>
       </nav>
+      <Player
+        isAutoPlay={isAutoPlay}
+        episodeIndex={playEpisodeIndex}
+        episode={episodes[playEpisodeIndex] || null}
+        onEnded={handleEnded}
+        ref={playerElement}
+      />
       <Routes>
         <Route path="/virtual_channel_register" element={
           <React.Fragment>
@@ -149,13 +165,6 @@ function App() {
         } />
         <Route path="/episodes" element={
           <React.Fragment>
-            <Player
-              isAutoPlay={isAutoPlay}
-              episodeIndex={playEpisodeIndex}
-              episode={episodes[playEpisodeIndex] || null}
-              onEnded={handleEnded}
-              ref={playerElement}
-            />
             <EpisodeList
               episodes={episodes}
               onEpisodeClick={handleEpisodeClick}
