@@ -13,7 +13,9 @@ type PlayerProps = {
 };
 
 export type PlayerType = {
-  getCurrentTime: () => number
+  getCurrentTime: () => number,
+  play: () => void,
+  pause: () => void
 }
 
 export const Player = forwardRef((props : PlayerProps, ref : any) => {
@@ -26,6 +28,12 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
   useImperativeHandle(ref, () => ({
     getCurrentTime: () => {
       return audioElement.current.currentTime;
+    },
+    play: () => {
+      audioElement.current.play();
+    },
+    pause: () => {
+      audioElement.current.pause();
     }
   }));
 

@@ -86,8 +86,9 @@ function App() {
 
       oldEpisode.current_time = Math.floor(playerElement.current.getCurrentTime());
 
-      // 同じエピソードがクリックされている場合、何もしない
+      // 同じエピソードがクリックされている場合、再生状態にする
       if (oldEpisode.id === currentEpisode.id) {
+          playerElement.current.play();
           return;
       }
 
@@ -102,6 +103,7 @@ function App() {
 
     // 選択したエピソードをプレイヤーで再生
     setPlayEpisodeIndex(episodeIndex);
+    setIsAutoPlay(true);
   }
 
   async function playNextEpisode(episodeIndex : number) {
@@ -110,7 +112,7 @@ function App() {
       const nextEpisode = episodes[nextEpisodeIndex];
 
       if (nextEpisode != null) {
-        // 継続再生の場合は、戦闘から再生する
+        // 継続再生の場合は、先頭から再生する
         nextEpisode.current_time = 0;
         setPlayEpisodeIndex(nextEpisodeIndex);
       } else {
