@@ -133,11 +133,11 @@ function App() {
 
   return (
     <div className="App">
-      <div>
+      <nav>
         <Link to="virtual_channel_register">仮想チャンネル登録</Link>
         &nbsp; - &nbsp;
         <Link to="/">エピソード再生</Link>
-      </div>
+      </nav>
       <Routes>
         <Route path="/virtual_channel_register" element={
           <React.Fragment>
