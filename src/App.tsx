@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import './App.css';
 
@@ -26,6 +26,7 @@ function App() {
   const [playEpisodeIndex, setPlayEpisodeIndex] = useState(-1);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const playerElement = useRef<PlayerType>(null!);
+  const navigate = useNavigate();
 
   useEffect(() => {
     updateChannelList();
@@ -52,12 +53,14 @@ function App() {
       setChannels(channells);
   }
 
-  async function getEpisodesFromChannelIndex(channel_index : number) {
+  async function handleChannelClick(channel_index : number) {
     const channel = channels[channel_index];
 
     const episodes : Array<Episode> = await invoke('get_episodes', { channelUri: channel.uri });
 
     setEpisodes(episodes);
+
+    navigate("/episodes");
   }
 
   async function handleEnded(episodeIndex : number) {
@@ -140,7 +143,7 @@ function App() {
           <React.Fragment>
             <ChannelList
               channels={channels}
-              onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
+              onClick={(channel_index: number) => {handleChannelClick(channel_index)}}
             />
           </React.Fragment>
         } />
