@@ -4,7 +4,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/tauri'
 import { appWindow } from '@tauri-apps/api/window'
 
-import VirturlChannelRegister from './VirturlChannelRegister';
+import VirtualChannelRegister from './VirtualChannelRegister';
 import ChannelList from './ChannelList';
 import { Player, PlayerType } from './Player';
 import EpisodeList from './EpisodeList';
@@ -131,7 +131,7 @@ function App() {
 
   return (
     <div className="App">
-      <VirturlChannelRegister onRegisterChannel={updateChannelList}/>
+      <VirtualChannelRegister onRegisterChannel={updateChannelList}/>
       <ChannelList
         channels={channels}
         onClick={(channel_index: number) => {getEpisodesFromChannelIndex(channel_index)}}
