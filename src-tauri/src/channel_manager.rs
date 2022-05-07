@@ -37,6 +37,25 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
     }
 }
 
+pub fn delete_channel(channel_uri: &String) -> Result<usize, String> {
+    use crate::schema::channel;
+    use crate::sqlite3::establish_connection;
+
+    let conn = establish_connection();
+
+    // エピソード削除
+    delete_episodes(&channel_uri)?;
+
+    let delete_result = diesel::delete(channel::table.filter(channel::uri.eq(channel_uri)))
+        .execute(&conn);
+
+    match delete_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(delete_row_count) => Ok(delete_row_count)
+    }
+
+}
+
 use crate::model::Episode;
 
 pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
@@ -81,7 +100,7 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
     }
 }
 
-pub fn delete_episodes(channel_uri: String) -> Result<usize, String> {
+pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
@@ -163,6 +182,29 @@ mod channel_manager_tests {
     }
 
     #[test]
+    fn test_delete_channel() {
+        before();
+
+        run_sql_from_file("./test/channel_manager/test_delete_channel.sql", "./assets/scab-player.db");
+
+        let channel_uri = "target_channel_uri".to_string();
+
+        let delete_count = delete_channel(&channel_uri).unwrap();
+        assert_eq!(delete_count, 1);
+
+        let target_channel = get_channels().unwrap();
+        assert_eq!(target_channel.len(), 1);
+
+        let target_episodes = get_episodes("target_channel_uri".to_string()).unwrap();
+        assert_eq!(target_episodes.len(), 0);
+
+        let no_target_episodes = get_episodes("no_target_channel_uri".to_string()).unwrap();
+        assert_eq!(no_target_episodes.len(), 2);
+
+        after();
+    }
+
+    #[test]
     fn test_get_episodes() {
         before();
 
@@ -233,14 +275,14 @@ mod channel_manager_tests {
 
         let channel_uri = "target_channel_uri".to_string();
 
-        let delete_count = delete_episodes(channel_uri).unwrap();
+        let delete_count = delete_episodes(&channel_uri).unwrap();
         assert_eq!(delete_count, 2);
 
         let target_episodes = get_episodes("target_channel_uri".to_string()).unwrap();
         assert_eq!(target_episodes.len(), 0);
 
-        let target_episodes = get_episodes("no_target_channel_uri".to_string()).unwrap();
-        assert_eq!(target_episodes.len(), 2);
+        let no_target_episodes = get_episodes("no_target_channel_uri".to_string()).unwrap();
+        assert_eq!(no_target_episodes.len(), 2);
 
         after();
     }
