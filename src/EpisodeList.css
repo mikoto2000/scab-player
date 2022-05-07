@@ -1,7 +1,16 @@
+.EpisodeList {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: hidden;
+}
+
 .EpisodeList ul {
+  flex: 1;
   text-align: left;
   margin: 0px;
   padding: 1em;
+  overflow-y: auto;
 }
 
 .EpisodeList ul > li {

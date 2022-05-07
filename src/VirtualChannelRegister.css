@@ -1,5 +1,29 @@
+.VirtualChannelRegister {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: hidden;
+}
+
 .VirtualChannelRegister div {
   margin-left: 1em;
   margin-right: 1em;
+}
+
+.VirtualChannelRegister div.episode-list {
+  display: flex;
+  flex-direction: column;
+  margin-right: 0px;
+}
+
+.episode-list {
+  flex: 1;
+  overflow-y: hidden;
+}
+
+.VirtualChannelRegister ol {
+  flex: 1;
+  text-align: left;
+  overflow-y: auto;
 }
 
