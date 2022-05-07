@@ -122,10 +122,15 @@ function App() {
 
   async function handleEpisodeClick(episodeIndex: number) {
 
+    // エピソードの新規マークをはがす
+    const currentEpisode = episodes[episodeIndex];
+    if (!currentEpisode.current_time) {
+        currentEpisode.current_time = 0;
+    }
+
     // 初回選択時など、 oldEpisode が無ければ oldEpisode の更新をしない
     if (playEpisodeIndex >= 0) {
       const oldEpisode = episodes[playEpisodeIndex];
-      const currentEpisode = episodes[episodeIndex];
 
       oldEpisode.current_time = Math.floor(playerElement.current.getCurrentTime());
 
