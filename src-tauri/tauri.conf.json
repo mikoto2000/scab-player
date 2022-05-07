@@ -23,10 +23,10 @@
       ],
       "resources": ["assets/*"],
       "externalBin": [],
-      "copyright": "",
-      "category": "DeveloperTool",
-      "shortDescription": "",
-      "longDescription": "",
+      "copyright": "mikoto2000@gmail.com",
+      "category": "AudioBook",
+      "shortDescription": "Self create audio book player.",
+      "longDescription": "Self create audio book player.",
       "deb": {
         "depends": []
       },
