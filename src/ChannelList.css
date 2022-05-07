@@ -15,6 +15,7 @@
 
 
 .ChannelList ul > li {
+  display: flex;
   list-style: "";
   padding: 0.25em;
   cursor: pointer;
@@ -27,5 +28,9 @@
 .ChannelList ul > li:last-child {
   border-width: 1px;
   border-color: lightgray;
+}
+
+.ChannelList ul > li > button {
+  margin-left: auto;
 }
 

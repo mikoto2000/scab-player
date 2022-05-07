@@ -7,7 +7,8 @@ import { Channel } from './CommonAppTypes'
 
 type ChannelListProps = {
   channels: Array<Channel>,
-  onClick: (channel_index: number) => void
+  onChannelClick: (channel_index: number) => void,
+  onChannelDeleteClick: (channel_index: number, event : React.MouseEvent<HTMLElement>) => void
 };
 
 export function ChannelList(props : ChannelListProps) {
@@ -15,9 +16,9 @@ export function ChannelList(props : ChannelListProps) {
   const channelList = props.channels.map((channel, channel_index) => {
     return <li
         key={channel.uri}
-        onClick={() => props.onClick(channel_index)}
+        onClick={() => props.onChannelClick(channel_index)}
         >
-        {channel.name}</li>
+        <label>{channel.name}</label><button onClick={(event) => props.onChannelDeleteClick(channel_index, event)}>削除</button></li>
   });
 
   return (

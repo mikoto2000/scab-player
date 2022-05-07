@@ -89,6 +89,21 @@ function App() {
 
   }
 
+  async function handleChannelDeleteClick(channel_index : number, event : React.MouseEvent<HTMLElement>) {
+    event.stopPropagation();
+
+    const channel = channels[channel_index];
+
+    invoke('delete_channel', { channelUri: channel.uri })
+        .then((_) => {
+          const newChannels = channels.slice();
+          newChannels.splice(channel_index, 1);
+          setChannels(newChannels);
+        })
+        .catch((err) => updateErrorMessage(`⚠️ delete channel list error: ${err}`));
+
+  }
+
   async function handleEnded(episodeIndex : number) {
     episodes[episodeIndex].current_time = 0;
     episodes[episodeIndex].is_finish = true;
@@ -177,7 +192,8 @@ function App() {
           <React.Fragment>
             <ChannelList
               channels={channels}
-              onClick={(channel_index: number) => {handleChannelClick(channel_index)}}
+              onChannelClick={(channel_index: number) => {handleChannelClick(channel_index)}}
+              onChannelDeleteClick={(channel_index: number, event : React.MouseEvent<HTMLElement>) => {handleChannelDeleteClick(channel_index, event)}}
             />
           </React.Fragment>
         } />

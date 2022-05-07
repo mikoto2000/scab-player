@@ -27,6 +27,7 @@ fn main() {
             command::get_episodes,
             command::find_new_episodes,
             command::add_virtual_channel,
+            command::delete_channel,
             command::update_episode
         ])
     .register_uri_scheme_protocol("stream", move |_app, request| {

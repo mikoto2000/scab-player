@@ -37,3 +37,9 @@ pub fn update_episode(episode : UpdateEpisode) -> Result<usize, String> {
     channel_manager::update_episode(episode)
 }
 
+#[tauri::command]
+pub fn delete_channel(channel_uri : String) -> Result<usize, String> {
+//    println!("delete_channel : {:?}", channel_uri);
+    channel_manager::delete_channel(&channel_uri)
+}
+
