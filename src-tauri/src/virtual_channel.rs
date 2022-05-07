@@ -83,7 +83,7 @@ mod virtual_channel_tests {
         assert_eq!(second_added_episode.title, "test_audio_01");
         assert_eq!(second_added_episode.uri, channel_path.join("test_audio_01.mp3").canonicalize().unwrap().to_str().unwrap().to_string());
 
-        let episodes = get_episodes(channel_path.canonicalize().unwrap().to_str().unwrap().to_string());
+        let episodes = get_episodes(channel_path.canonicalize().unwrap().to_str().unwrap().to_string()).unwrap();
 
         let first_episode = episodes.get(0).unwrap();
         assert_eq!(first_episode.channel_name, "basic_testdata");

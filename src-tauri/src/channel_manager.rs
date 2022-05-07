@@ -2,12 +2,17 @@ use diesel::prelude::*;
 
 use crate::model::Channel;
 
-pub fn get_channels() -> Vec<Channel> {
+pub fn get_channels() -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
     use crate::sqlite3::establish_connection;
 
     let conn = establish_connection();
-    channel.load::<Channel>(&conn).expect("Error loading channels.")
+    let channels_result = channel.load::<Channel>(&conn);
+
+    match channels_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(channels) => Ok(channels)
+    }
 }
 
 pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
@@ -34,13 +39,13 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
 
 use crate::model::Episode;
 
-pub fn get_episodes(channel_uri : String) -> Vec<Episode> {
+pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
     use crate::schema::channel;
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
     let conn = establish_connection();
-    episode::dsl::episode
+    let get_episode_result = episode::dsl::episode
         .inner_join(channel::dsl::channel)
         .select((
             episode::id,
@@ -50,7 +55,12 @@ pub fn get_episodes(channel_uri : String) -> Vec<Episode> {
             episode::current_time,
             episode::is_finish))
         .filter(episode::channel_uri.eq(channel_uri))
-        .load::<Episode>(&conn).expect("Error loading episodes.")
+        .load::<Episode>(&conn);
+
+    match get_episode_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(episodes) => Ok(episodes)
+    }
 }
 
 use crate::model::NewEpisode;
@@ -110,7 +120,7 @@ mod channel_manager_tests {
 
         run_sql_from_file("./test/channel_manager/test_get_channels.sql", "./assets/scab-player.db");
 
-        let channels = get_channels();
+        let channels = get_channels().unwrap();
         assert_eq!(channels.len(), 1);
 
         let first_channel = channels.first().unwrap();
@@ -128,7 +138,7 @@ mod channel_manager_tests {
         let insert_count = insert_channel("insert_uri".to_string(), "insert_name".to_string());
         assert_eq!(insert_count.unwrap(), 1);
 
-        let channels = get_channels();
+        let channels = get_channels().unwrap();
         let first_channel = channels.first().unwrap();
 
         assert_eq!(first_channel.uri, "insert_uri");
@@ -143,7 +153,7 @@ mod channel_manager_tests {
 
         run_sql_from_file("./test/channel_manager/test_get_episodes.sql", "./assets/scab-player.db");
 
-        let episodes = get_episodes("target_uri".to_string());
+        let episodes = get_episodes("target_uri".to_string()).unwrap();
         assert_eq!(episodes.len(), 1);
 
         let first_episode = episodes.first().unwrap();
@@ -180,7 +190,7 @@ mod channel_manager_tests {
         let insert_count = insert_episodes(new_episodes);
         assert_eq!(insert_count.unwrap(), 2);
 
-        let episodes = get_episodes("channel_uri".to_string());
+        let episodes = get_episodes("channel_uri".to_string()).unwrap();
         let first_episode = episodes.first().unwrap();
         assert_eq!(first_episode.id, 1);
         assert_eq!(first_episode.channel_name, "channel_name");
@@ -212,8 +222,10 @@ mod channel_manager_tests {
             is_finish: true
         };
 
-        let update_count = update_episode(episode);
-        let episodes = get_episodes("channel_uri".to_string());
+        let update_count = update_episode(episode).unwrap();
+        assert_eq!(update_count, 1);
+
+        let episodes = get_episodes("channel_uri".to_string()).unwrap();
         let first_episode = episodes.first().unwrap();
         assert_eq!(first_episode.id, 1);
         assert_eq!(first_episode.channel_name, "channel_name");

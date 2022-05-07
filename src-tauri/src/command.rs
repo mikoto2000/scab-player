@@ -8,13 +8,13 @@ use crate::model::NewEpisode;
 use crate::model::UpdateEpisode;
 
 #[tauri::command]
-pub fn get_channels() -> Vec<Channel> {
+pub fn get_channels() -> Result<Vec<Channel>, String> {
 //    println!("get_channels");
     channel_manager::get_channels()
 }
 
 #[tauri::command]
-pub fn get_episodes(channel_uri : String) -> Vec<Episode> {
+pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
 //    println!("get_episodes");
     channel_manager::get_episodes(channel_uri)
 }

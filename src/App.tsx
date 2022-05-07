@@ -48,9 +48,17 @@ function App() {
 
   }, [episodes, playEpisodeIndex]);
 
+  async function updateErrorMessage(message: string) {
+    const errorArea = document.getElementById("error-area");
+    if (errorArea) {
+      errorArea.textContent = message;
+    }
+  }
+
   async function updateChannelList() {
-      const channells : Array<Channel> = await invoke('get_channels', {});
-      setChannels(channells);
+      invoke('get_channels', {})
+          .then((channels) => setChannels(channels as Array<Channel>))
+          .catch((err) => updateErrorMessage(`⚠️ get channel list error: ${err}`));
   }
 
   async function handleNavClick(episodeIndex : number) {
@@ -69,13 +77,16 @@ function App() {
   async function handleChannelClick(channel_index : number) {
     const channel = channels[channel_index];
 
-    const episodes : Array<Episode> = await invoke('get_episodes', { channelUri: channel.uri });
+    invoke('get_episodes', { channelUri: channel.uri })
+        .then((episodes) => {
+            setEpisodes(episodes as Array<Episode>);
+            setPlayEpisodeIndex(-1);
+            setIsAutoPlay(false);
 
-    setEpisodes(episodes);
-    setPlayEpisodeIndex(-1);
-    setIsAutoPlay(false);
+            navigate("/episodes");
+        })
+        .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
 
-    navigate("/episodes");
   }
 
   async function handleEnded(episodeIndex : number) {
@@ -91,8 +102,8 @@ function App() {
 
   async function updateEpisode(episode : UpdateEpisode) {
     invoke('update_episode', { episode: episode })
-        .then((e) => { console.log(e)})
-        .catch((err) => { console.log(err)});
+        .then((e) => { /* do nothing*/ })
+        .catch((err) => updateErrorMessage(`⚠️ update episode error: ${err}`));
   }
 
   async function handleEpisodeClick(episodeIndex: number) {
@@ -156,6 +167,8 @@ function App() {
         onEnded={handleEnded}
         ref={playerElement}
       />
+      <div id="error-area">
+      </div>
       <Routes>
         <Route path="/virtual_channel_register" element={
           <React.Fragment>
