@@ -54,6 +54,10 @@ function App() {
   }
 
   async function handleNavClick(episodeIndex : number) {
+    if (!episodes[episodeIndex]) {
+      return;
+    }
+
     episodes[episodeIndex].current_time = playerElement.current.getCurrentTime();
     updateEpisode({
         id: episodes[episodeIndex].id,
