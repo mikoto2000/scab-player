@@ -81,6 +81,21 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
     }
 }
 
+pub fn delete_episodes(channel_uri: String) -> Result<usize, String> {
+    use crate::schema::episode;
+    use crate::sqlite3::establish_connection;
+
+    let conn = establish_connection();
+
+    let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
+        .execute(&conn);
+
+    match delete_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(delete_row_count) => Ok(delete_row_count)
+    }
+}
+
 use crate::model::UpdateEpisode;
 
 pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
@@ -206,6 +221,26 @@ mod channel_manager_tests {
         assert_eq!(second_episode.uri, "episode_uri_2");
         assert_eq!(second_episode.current_time, None);
         assert_eq!(second_episode.is_finish, false);
+
+        after();
+    }
+
+    #[test]
+    fn test_delete_episodes() {
+        before();
+
+        run_sql_from_file("./test/channel_manager/test_delete_episodes.sql", "./assets/scab-player.db");
+
+        let channel_uri = "target_channel_uri".to_string();
+
+        let delete_count = delete_episodes(channel_uri).unwrap();
+        assert_eq!(delete_count, 2);
+
+        let target_episodes = get_episodes("target_channel_uri".to_string()).unwrap();
+        assert_eq!(target_episodes.len(), 0);
+
+        let target_episodes = get_episodes("no_target_channel_uri".to_string()).unwrap();
+        assert_eq!(target_episodes.len(), 2);
 
         after();
     }
