@@ -96,14 +96,13 @@ function App() {
         id: episodes[episodeIndex].id,
         current_time: 0,
         is_finish: true,
-      });
-    playNextEpisode(episodeIndex);
+    })
+      .then((_) => playNextEpisode(episodeIndex))
+      .catch((err) => updateErrorMessage(`⚠️ update episode error: ${err}`));
   }
 
   async function updateEpisode(episode : UpdateEpisode) {
-    invoke('update_episode', { episode: episode })
-        .then((e) => { /* do nothing*/ })
-        .catch((err) => updateErrorMessage(`⚠️ update episode error: ${err}`));
+    return invoke('update_episode', { episode: episode });
   }
 
   async function handleEpisodeClick(episodeIndex: number) {
@@ -123,7 +122,6 @@ function App() {
 
       // oldEpisode の情報更新
       // audio 要素から currentTime を引っ張ってきて、「ここまで再生したよ」を記録する。
-      currentEpisode.current_time = 0;
       updateEpisode({
           id: oldEpisode.id,
           current_time: Math.floor(playerElement.current.getCurrentTime()),
