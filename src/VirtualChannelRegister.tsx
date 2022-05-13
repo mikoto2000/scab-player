@@ -4,7 +4,7 @@ import { dialog } from '@tauri-apps/api'
 
 import './VirtualChannelRegister.css'
 import { Episode } from './CommonAppTypes'
-import { TauriService } from './service/TauriService'
+import { useTauriService } from './service/TauriService'
 
 type VirtualChannelRegisterProps = {
   onRegisterChannel: () => void
@@ -15,6 +15,8 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
   const [findEpisodes, setFindEpisodes] = useState([] as Array<Episode>);
   const [addChannelResultMessage, setAddChannelResultMessage] = useState("");
 
+  const service = useTauriService();
+
   async function selectChannelBaseDirectory() {
     const directory = await dialog.open({
       title: "Select channel base directory",
@@ -24,7 +26,7 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
     if (typeof directory === "string") {
       setChannelBaseDirectory(directory);
 
-      const episodes : Array<Episode> = await TauriService.findNewEpisodes(directory);
+      const episodes : Array<Episode> = await service.findNewEpisodes(directory);
 
       setFindEpisodes(episodes);
     }
@@ -33,7 +35,7 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
 
   function addNewChannel() {
 
-       TauriService.addVirtualChannel(channelBaseDirectory)
+       service.addVirtualChannel(channelBaseDirectory)
            .then((_) => {
                setAddChannelResultMessage("チャンネル登録に成功しました。");
 

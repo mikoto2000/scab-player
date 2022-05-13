@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import './App.css';
@@ -6,7 +6,7 @@ import './App.css';
 import { appWindow } from '@tauri-apps/api/window'
 
 import { Channel, Episode, UpdateEpisode } from './CommonAppTypes'
-import { TauriService } from './service/TauriService'
+import { useTauriService } from './service/TauriService'
 
 import VirtualChannelRegister from './VirtualChannelRegister';
 import { ChannelList } from './ChannelList';
@@ -22,6 +22,8 @@ function App() {
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const playerElement = useRef<PlayerType>(null!);
   const navigate = useNavigate();
+
+  const service = useTauriService();
 
   useEffect(() => {
     updateChannelList();
@@ -51,7 +53,7 @@ function App() {
   }
 
   async function updateChannelList() {
-      TauriService.getChannels()
+      service.getChannels()
           .then((channels) => setChannels(channels as Array<Channel>))
           .catch((err) => updateErrorMessage(`⚠️ get channel list error: ${err}`));
   }
@@ -72,7 +74,7 @@ function App() {
   async function handleChannelClick(channel_index : number) {
     const channel = channels[channel_index];
 
-    TauriService.getEpisodes(channel.uri)
+    service.getEpisodes(channel.uri)
         .then((episodes) => {
             setEpisodes(episodes as Array<Episode>);
             setPlayEpisodeIndex(-1);
@@ -89,7 +91,7 @@ function App() {
 
     const channel = channels[channel_index];
 
-    TauriService.deleteChannel(channel.uri)
+    service.deleteChannel(channel.uri)
         .then((_) => {
           const newChannels = channels.slice();
           newChannels.splice(channel_index, 1);
@@ -112,7 +114,7 @@ function App() {
   }
 
   async function updateEpisode(episode : UpdateEpisode) {
-    return TauriService.updateEpisode(episode);
+    return service.updateEpisode(episode);
   }
 
   async function handleEpisodeClick(episodeIndex: number) {

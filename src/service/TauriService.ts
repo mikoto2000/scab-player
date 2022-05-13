@@ -1,3 +1,5 @@
+import React, { useContext } from 'react';
+
 import { invoke } from '@tauri-apps/api/tauri'
 
 import { UpdateEpisode } from '../CommonAppTypes'
@@ -23,3 +25,9 @@ export const TauriService : Service = {
         return await invoke('update_episode', { episode: episode });
     }
 };
+
+export const TauriServiceContext = React.createContext(TauriService);
+
+export function useTauriService() {
+  return useContext(TauriServiceContext);
+}
