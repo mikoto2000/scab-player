@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-import { invoke } from '@tauri-apps/api/tauri'
-
 import './ChannelList.css';
 import { Channel } from './CommonAppTypes'
 

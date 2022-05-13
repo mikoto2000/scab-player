@@ -12,3 +12,9 @@ export type Episode = {
   is_finish: boolean
 };
 
+export type UpdateEpisode = {
+  id: number,
+  current_time: number,
+  is_finish: boolean
+};
+

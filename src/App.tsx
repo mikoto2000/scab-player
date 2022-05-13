@@ -3,24 +3,19 @@ import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import './App.css';
 
-import { invoke } from '@tauri-apps/api/tauri'
 import { appWindow } from '@tauri-apps/api/window'
 
-import { Channel, Episode } from './CommonAppTypes'
+import { Channel, Episode, UpdateEpisode } from './CommonAppTypes'
+import { TauriService } from './service/TauriService'
 
 import VirtualChannelRegister from './VirtualChannelRegister';
 import { ChannelList } from './ChannelList';
 import { Player, PlayerType } from './Player';
 import { EpisodeList } from './EpisodeList';
 
-type UpdateEpisode = {
-  id: number,
-  current_time: number,
-  is_finish: boolean
-};
-
 
 function App() {
+
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
   const [playEpisodeIndex, setPlayEpisodeIndex] = useState(-1);
@@ -56,7 +51,7 @@ function App() {
   }
 
   async function updateChannelList() {
-      invoke('get_channels', {})
+      TauriService.getChannels()
           .then((channels) => setChannels(channels as Array<Channel>))
           .catch((err) => updateErrorMessage(`⚠️ get channel list error: ${err}`));
   }
@@ -77,7 +72,7 @@ function App() {
   async function handleChannelClick(channel_index : number) {
     const channel = channels[channel_index];
 
-    invoke('get_episodes', { channelUri: channel.uri })
+    TauriService.getEpisodes(channel.uri)
         .then((episodes) => {
             setEpisodes(episodes as Array<Episode>);
             setPlayEpisodeIndex(-1);
@@ -94,7 +89,7 @@ function App() {
 
     const channel = channels[channel_index];
 
-    invoke('delete_channel', { channelUri: channel.uri })
+    TauriService.deleteChannel(channel.uri)
         .then((_) => {
           const newChannels = channels.slice();
           newChannels.splice(channel_index, 1);
@@ -117,7 +112,7 @@ function App() {
   }
 
   async function updateEpisode(episode : UpdateEpisode) {
-    return invoke('update_episode', { episode: episode });
+    return TauriService.updateEpisode(episode);
   }
 
   async function handleEpisodeClick(episodeIndex: number) {
