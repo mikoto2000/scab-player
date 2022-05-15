@@ -3,8 +3,6 @@ import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import './App.css';
 
-import { appWindow } from '@tauri-apps/api/window'
-
 import { Channel, Episode, UpdateEpisode } from './CommonAppTypes'
 import { useTauriService } from './service/TauriService'
 
@@ -28,8 +26,7 @@ function App() {
   useEffect(() => {
     updateChannelList();
 
-    appWindow.listen('tauri://close-requested', async ({ event, payload }) => {
-
+    service.onClose(async () => {
       // 再生中エピソードがあるときのみ再生情報の更新を行う
       const currentEpisode = episodes[playEpisodeIndex];
       if (currentEpisode != null) {
@@ -39,10 +36,7 @@ function App() {
           is_finish: currentEpisode.is_finish
         });
       }
-
-      appWindow.close()
     });
-
   }, [episodes, playEpisodeIndex]);
 
   async function updateErrorMessage(message: string) {

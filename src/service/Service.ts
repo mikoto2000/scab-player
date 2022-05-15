@@ -1,6 +1,7 @@
 import { Channel, Episode, UpdateEpisode } from '../CommonAppTypes'
 
 export type Service = {
+    onClose: (handleCloseFunction : () => void) => void,
     getChannels: () => Promise<Array<Channel>>,
     addVirtualChannel: ( newChannel: string ) => Promise<number>,
     deleteChannel: ( channelUri : string ) => Promise<void>,
