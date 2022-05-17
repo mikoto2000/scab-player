@@ -33,7 +33,26 @@ const MockService : Service = {
         return await new Promise(() => {});
     },
     getEpisodes: async ( channelUri : string ) => {
-        return await new Promise(() => {});
+        return await new Promise((callback) => {
+            callback([
+                {
+                    id: 1,
+                    channel_name: 'channel_name_1',
+                    uri: 'channel_uri_1/episode_title_1',
+                    title: 'episode_title_1',
+                    current_time: null,
+                    is_finish: false
+                },
+                {
+                    id: 2,
+                    channel_name: 'channel_name_1',
+                    uri: 'channel_uri_1/episode_title_2',
+                    title: 'episode_title_2',
+                    current_time: 0,
+                    is_finish: false
+                },
+            ]);
+        });
     },
     findNewEpisodes: async ( newChannel: string ) => {
         return await new Promise(() => {});
@@ -70,3 +89,32 @@ test('channel list', async () => {
 
 });
 
+
+test('episode list', async () => {
+  render(
+    <React.StrictMode>
+      <TauriServiceContext.Provider value={MockService}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </TauriServiceContext.Provider>
+    </React.StrictMode>
+  );
+
+  await waitFor(async () => {
+      const channelLiElements = [...document.querySelectorAll('.ChannelList li')];
+      expect(channelLiElements.length).toBe(2);
+      await fireEvent.click(
+          channelLiElements[0]
+      );
+  });
+
+  await waitFor(async () => {
+      const episodeLiElements = [...document.querySelectorAll('.EpisodeList li')];
+      expect(episodeLiElements.length).toBe(2);
+
+      expect(episodeLiElements[0].textContent).toBe('🆕 : episode_title_1');
+      expect(episodeLiElements[1].textContent).toBe('☐ : episode_title_2');
+  });
+
+});
