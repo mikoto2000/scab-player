@@ -51,6 +51,14 @@ const MockService : Service = {
                     current_time: 0,
                     is_finish: false
                 },
+                {
+                    id: 3,
+                    channel_name: 'channel_name_1',
+                    uri: 'channel_uri_1/episode_title_3',
+                    title: 'episode_title_3',
+                    current_time: 0,
+                    is_finish: true
+                },
             ]);
         });
     },
@@ -111,10 +119,11 @@ test('episode list', async () => {
 
   await waitFor(async () => {
       const episodeLiElements = [...document.querySelectorAll('.EpisodeList li')];
-      expect(episodeLiElements.length).toBe(2);
+      expect(episodeLiElements.length).toBe(3);
 
       expect(episodeLiElements[0].textContent).toBe('🆕 : episode_title_1');
       expect(episodeLiElements[1].textContent).toBe('☐ : episode_title_2');
+      expect(episodeLiElements[2].textContent).toBe('☑ : episode_title_3');
   });
 
 });
