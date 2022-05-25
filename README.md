@@ -2,6 +2,18 @@
 
 自炊オーディオブックプレイヤー
 
+## 開発
+
+```sh
+npm install
+npm run tauri dev
+```
+
+## アイコンの再生成
+
+```sh
+npx @tauri-apps/tauricon images/logo.svg
+```
 
 ## License:
 
