@@ -3,6 +3,8 @@ import { act, fireEvent, getByText, render, screen, waitFor } from '@testing-lib
 
 import { BrowserRouter } from "react-router-dom";
 
+import { Episode, UpdateEpisode } from "./CommonAppTypes";
+
 import { Service } from "./service/Service";
 import { TauriServiceContext } from "./service/TauriService";
 
@@ -16,11 +18,11 @@ const MockService : Service = {
         return await new Promise((callback) => {
             callback([
                 {
-                    url: 'channel_url_1',
+                    uri: 'channel_uri_1',
                     name: 'channel_name_1'
                 },
                 {
-                    url: 'channel_url_2',
+                    uri: 'channel_uri_2',
                     name: 'channel_name_2'
                 },
             ]);
@@ -59,7 +61,7 @@ const MockService : Service = {
                     current_time: 0,
                     is_finish: true
                 },
-            ]);
+            ] as Array<Episode>);
         });
     },
     findNewEpisodes: async ( newChannel: string ) => {
@@ -88,7 +90,7 @@ test('channel list', async () => {
       const second_channel = screen.getByText(/channel_name_2/i);
       expect(second_channel).toBeInTheDocument();
 
-      const channelLiElements = [...document.querySelectorAll('.ChannelList li')];
+      const channelLiElements = Array.from(document.querySelectorAll('.ChannelList li'));
       expect(channelLiElements.length).toBe(2);
       expect(channelLiElements[0]).toBeInTheDocument();
       expect(channelLiElements[1]).toBeInTheDocument();
@@ -110,7 +112,7 @@ test('episode list', async () => {
   );
 
   await waitFor(async () => {
-      const channelLiElements = [...document.querySelectorAll('.ChannelList li')];
+      const channelLiElements = Array.from(document.querySelectorAll('.ChannelList li'));
       expect(channelLiElements.length).toBe(2);
       await fireEvent.click(
           channelLiElements[0]
@@ -118,7 +120,7 @@ test('episode list', async () => {
   });
 
   await waitFor(async () => {
-      const episodeLiElements = [...document.querySelectorAll('.EpisodeList li')];
+      const episodeLiElements = Array.from(document.querySelectorAll('.EpisodeList li'));
       expect(episodeLiElements.length).toBe(3);
 
       expect(episodeLiElements[0].textContent).toBe('🆕 : episode_title_1');
