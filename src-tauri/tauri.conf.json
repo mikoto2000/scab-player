@@ -24,7 +24,7 @@
       "resources": ["assets/*"],
       "externalBin": [],
       "copyright": "mikoto2000@gmail.com",
-      "category": "AudioBook",
+      "category": "Music",
       "shortDescription": "Self create audio book player.",
       "longDescription": "Self create audio book player.",
       "deb": {
