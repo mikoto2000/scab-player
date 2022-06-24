@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
 
 import './App.css';
@@ -37,6 +37,8 @@ function App() {
         });
       }
     });
+  // 初回のみ実行してほしいので、依存はなし
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [episodes, playEpisodeIndex]);
 
   async function updateErrorMessage(message: string) {
