@@ -33,7 +33,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tagName: v__VERSION__
+        tagName: "release/v__VERSION__"
         releaseName: "v__VERSION__"
         prerelease: true
 
