@@ -39,7 +39,7 @@ function App() {
     });
   // 初回のみ実行してほしいので、依存はなし
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [episodes, playEpisodeIndex]);
+  }, []);
 
   async function updateErrorMessage(message: string) {
     const errorArea = document.getElementById("error-area");
