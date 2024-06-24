@@ -10,7 +10,7 @@ pub struct Channel {
 }
 
 #[derive(Insertable)]
-#[table_name = "channel"]
+#[diesel(table_name = channel)]
 pub struct NewChannel<'a> {
     pub uri: &'a str,
     pub name: &'a str
@@ -29,7 +29,7 @@ pub struct Episode {
 }
 
 #[derive(AsChangeset, Serialize, Deserialize, Debug)]
-#[table_name="episode"]
+#[diesel(table_name = episode)]
 pub struct UpdateEpisode {
     pub id: i32,
     pub current_time: Option<i32>,
@@ -37,7 +37,7 @@ pub struct UpdateEpisode {
 }
 
 #[derive(Serialize, Deserialize, Insertable, Debug, Clone)]
-#[table_name = "episode"]
+#[diesel(table_name = episode)]
 pub struct NewEpisode {
     pub channel_uri: String,
     pub title: String,

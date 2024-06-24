@@ -6,8 +6,8 @@ pub fn get_channels() -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
-    let channels_result = channel.load::<Channel>(&conn);
+    let mut conn = establish_connection();
+    let channels_result = channel.load::<Channel>(&mut conn);
 
     match channels_result {
         Err(why) => Err(why.to_string().into()),
@@ -20,7 +20,7 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
     use crate::model::NewChannel;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
+    let mut conn = establish_connection();
 
     let new_channel = NewChannel {
         uri: uri.as_str(),
@@ -29,7 +29,7 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
 
     let insert_result = diesel::insert_into(channel::table)
         .values(new_channel)
-        .execute(&conn);
+        .execute(&mut conn);
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
@@ -41,13 +41,13 @@ pub fn delete_channel(channel_uri: &String) -> Result<usize, String> {
     use crate::schema::channel;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
+    let mut conn = establish_connection();
 
     // エピソード削除
     delete_episodes(&channel_uri)?;
 
     let delete_result = diesel::delete(channel::table.filter(channel::uri.eq(channel_uri)))
-        .execute(&conn);
+        .execute(&mut conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
@@ -63,7 +63,7 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
+    let mut conn = establish_connection();
     let get_episode_result = episode::dsl::episode
         .inner_join(channel::dsl::channel)
         .select((
@@ -74,7 +74,7 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
             episode::current_time,
             episode::is_finish))
         .filter(episode::channel_uri.eq(channel_uri))
-        .load::<Episode>(&conn);
+        .load::<Episode>(&mut conn);
 
     match get_episode_result {
         Err(why) => Err(why.to_string().into()),
@@ -88,11 +88,11 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
+    let mut conn = establish_connection();
 
     let insert_result = diesel::insert_into(episode::table)
         .values(episodes)
-        .execute(&conn);
+        .execute(&mut conn);
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
@@ -104,10 +104,10 @@ pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
+    let mut conn = establish_connection();
 
     let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
-        .execute(&conn);
+        .execute(&mut conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
@@ -121,11 +121,11 @@ pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let conn = establish_connection();
+    let mut conn = establish_connection();
 
     let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
         .set(update_episode)
-        .execute(&conn);
+        .execute(&mut conn);
 
     match update_result {
         Err(why) => Err(why.to_string().into()),
