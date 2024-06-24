@@ -1,13 +1,9 @@
 [package]
-name = "app"
+name = "scab-player"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
-default-run = "app"
+description = "自炊オーディオブックプレイヤー"
+authors = ["mikoto2000@gmail.com"]
 edition = "2021"
-rust-version = "1.57"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
