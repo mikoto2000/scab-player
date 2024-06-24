@@ -5,6 +5,7 @@
 
 #[macro_use]
 extern crate diesel;
+extern crate diesel_migrations;
 
 mod app_initializer;
 mod channel_manager;

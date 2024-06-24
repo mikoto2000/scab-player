@@ -5,6 +5,9 @@ use tauri::api::path::local_data_dir;
 
 use tauri::App;
 
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
+pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
+
 const DB_NAME : &str = "scab-player.db";
 
 pub fn init_db(app : &App) {
@@ -15,9 +18,15 @@ pub fn init_db(app : &App) {
     println!("db_path: {:#?}", db_path);
 
     if db_path.is_file() {
+      // db_path に DB が見つかった場合、マイグレーション
+      use crate::sqlite3::establish_connection;
+      let mut conn = establish_connection();
+      let _ = conn.run_pending_migrations(MIGRATIONS);
+
       return;
     }
 
+    // db_path に db が見つからない場合、初期 DB ファイルをコピー
     let original_db = PathBuf::from("assets/scab-player.db");
     if original_db.is_file() {
       println!("original_db: {:#?}", original_db);

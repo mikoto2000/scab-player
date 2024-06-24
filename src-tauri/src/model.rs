@@ -25,7 +25,8 @@ pub struct Episode {
     pub title: String,
     pub uri: String,
     pub current_time: Option<i32>,
-    pub is_finish: bool
+    pub is_finish: bool,
+    pub cache_uri: Option<String>,
 }
 
 #[derive(AsChangeset, Serialize, Deserialize, Debug)]
@@ -41,5 +42,6 @@ pub struct UpdateEpisode {
 pub struct NewEpisode {
     pub channel_uri: String,
     pub title: String,
-    pub uri: String
+    pub uri: String,
+    pub cache_uri: String
 }

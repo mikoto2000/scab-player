@@ -2,6 +2,7 @@ use diesel::prelude::*;
 
 use crate::model::Channel;
 
+
 pub fn get_channels() -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
     use crate::sqlite3::establish_connection;
@@ -72,7 +73,9 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
             episode::title,
             episode::uri,
             episode::current_time,
-            episode::is_finish))
+            episode::is_finish,
+            episode::cache_uri,
+            ))
         .filter(episode::channel_uri.eq(channel_uri))
         .load::<Episode>(&mut conn);
 
@@ -236,11 +239,13 @@ mod channel_manager_tests {
                 channel_uri: "channel_uri".to_string(),
                 title: "episode_title_1".to_string(),
                 uri: "episode_uri_1".to_string(),
+                cache_uri: "episode_uri_1".to_string(),
             },
             NewEpisode {
                 channel_uri: "channel_uri".to_string(),
                 title: "episode_title_2".to_string(),
                 uri: "episode_uri_2".to_string(),
+                cache_uri: "episode_uri_2".to_string(),
             },
         ];
 
