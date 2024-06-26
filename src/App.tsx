@@ -7,6 +7,7 @@ import { Channel, Episode, UpdateEpisode } from './CommonAppTypes'
 import { useTauriService } from './service/TauriService'
 
 import VirtualChannelRegister from './VirtualChannelRegister';
+import PodcastChannelRegister from './PodcastChannelRegister';
 import { ChannelList } from './ChannelList';
 import { Player, PlayerType } from './Player';
 import { EpisodeList } from './EpisodeList';
@@ -165,6 +166,8 @@ function App() {
   return (
     <div className="App">
       <nav>
+        <Link onClick={() => handleNavClick(playEpisodeIndex) } to="podcast_channel_register" >ポッドキャストチャンネル登録</Link>
+        &nbsp; - &nbsp;
         <Link onClick={() => handleNavClick(playEpisodeIndex) } to="virtual_channel_register" >仮想チャンネル登録</Link>
         &nbsp; - &nbsp;
         <Link onClick={() => handleNavClick(playEpisodeIndex) } to="/" >チャンネル選択</Link>
@@ -181,6 +184,11 @@ function App() {
       <div id="error-area">
       </div>
       <Routes>
+        <Route path="/podcast_channel_register" element={
+          <React.Fragment>
+            <PodcastChannelRegister onRegisterChannel={updateChannelList}/>
+          </React.Fragment>
+        } />
         <Route path="/virtual_channel_register" element={
           <React.Fragment>
             <VirtualChannelRegister onRegisterChannel={updateChannelList}/>

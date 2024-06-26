@@ -31,6 +31,12 @@ const MockService : Service = {
     addVirtualChannel: async ( newChannel: string ) => {
         return await new Promise(() => {});
     },
+    addPodcastChannel: async ( newChannel: string ) => {
+        return await new Promise(() => {});
+    },
+    readRssInfo: async (feedUrl: string) => {
+        return await new Promise(() => {});
+    },
     deleteChannel: async ( channelUri : string ) => {
         return await new Promise(() => {});
     },

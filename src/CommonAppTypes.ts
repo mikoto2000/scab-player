@@ -18,3 +18,9 @@ export type UpdateEpisode = {
   is_finish: boolean
 };
 
+export type Feed = {
+  title: string;
+  author: string[];
+  description: string;
+}
+
