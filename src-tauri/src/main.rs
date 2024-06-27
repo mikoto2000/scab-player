@@ -14,6 +14,7 @@ mod model;
 mod schema;
 mod sqlite3;
 mod virtual_channel;
+mod podcast_channel;
 
 fn main() {
   tauri::Builder::default()
@@ -31,7 +32,7 @@ fn main() {
             command::delete_channel,
             command::update_episode,
             command::read_rss_info,
-            command::add_podcast_channel,
+            command::add_podcast,
         ])
     .register_uri_scheme_protocol("stream", move |_app, request| {
 

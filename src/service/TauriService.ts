@@ -25,7 +25,7 @@ export const TauriService : Service = {
         return await invoke('read_rss_info', { channelUri: feedUrl });
     },
     addPodcastChannel: async ( feed: Feed ) => {
-        return await invoke('add_podcast_channel', { feed: feed});
+        return await invoke('add_podcast', { feed: feed});
     },
     deleteChannel: async ( channelUri : string ) => {
         return await invoke('delete_channel', { channelUri: channelUri });

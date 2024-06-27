@@ -43,7 +43,16 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
         <figcaption>{ props.episode ? props.episode.title : ""}</figcaption>
         <audio
           autoPlay={props.isAutoPlay}
-          controls src={props.episode ? convertFileSrc(props.episode.uri, 'stream') : ""}
+          controls src={
+            props.episode
+            ?
+              props.episode.uri.startsWith("http")
+              ?
+                props.episode.uri
+              :
+                convertFileSrc(props.episode.uri, 'stream')
+            :
+              ""}
           onEnded={(e) => { props.onEnded(props.episodeIndex) }}
           ref={audioElement}
         />

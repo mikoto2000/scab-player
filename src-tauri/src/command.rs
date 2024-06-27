@@ -4,6 +4,7 @@ use feed_rs::model::Text;
 
 use crate::channel_manager;
 use crate::virtual_channel;
+use crate::podcast_channel;
 use crate::model::Channel;
 use crate::model::Episode;
 use crate::model::Entry;
@@ -53,7 +54,7 @@ pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
 
     // RSS 取得
     use reqwest::blocking::get;
-    let response = get(channel_uri).unwrap();
+    let response = get(channel_uri.clone()).unwrap();
 
     // RSS パース
     use feed_rs::parser;
@@ -74,6 +75,7 @@ pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
                 src: None,
                 content: "".to_string(),
             }).content,
+        url: channel_uri.clone(),
         entries: feed.entries.iter().map(|e| Entry {
             id: e.id.clone(),
             title: e.title.clone().unwrap_or_else(|| Text {
@@ -87,8 +89,7 @@ pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
 }
 
 #[tauri::command]
-pub fn add_podcast_channel(_feed: Feed) -> Result<(), String> {
-    println!("add_podcast_channel");
-    //channel_manager::add_podcast_channel()
-    Ok(())
+pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
+    println!("add_podcast");
+    podcast_channel::add_podcast_channel(feed).unwrap()
 }

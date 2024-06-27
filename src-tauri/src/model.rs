@@ -58,5 +58,6 @@ pub struct Feed {
     pub title: String,
     pub authors: Vec<String>,
     pub description: String,
+    pub url: String,
     pub entries: Vec<Entry>,
 }
