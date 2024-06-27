@@ -20,7 +20,7 @@ export type UpdateEpisode = {
 
 export type Feed = {
   title: string;
-  author: string[];
+  authors: string[];
   description: string;
 }
 

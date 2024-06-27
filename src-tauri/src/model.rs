@@ -1,4 +1,3 @@
-use serde;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -48,8 +47,16 @@ pub struct NewEpisode {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Entry {
+    pub id: String,
+    pub title: String,
+    pub media_url: Vec<Vec<String>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Feed {
     pub title: String,
-    pub author: Vec<String>,
+    pub authors: Vec<String>,
     pub description: String,
+    pub entries: Vec<Entry>,
 }

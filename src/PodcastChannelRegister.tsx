@@ -23,6 +23,7 @@ function PodcastChannelRegister(props : PodcastChannelRegisterProps) {
   async function readRssInfo(event: MouseEvent<HTMLButtonElement>) {
        service.readRssInfo(channelFeedUrl)
            .then((feed) => {
+             console.log(feed);
              setFeed(feed);
            })
            .catch((e) => {
@@ -73,7 +74,7 @@ function PodcastChannelRegister(props : PodcastChannelRegisterProps) {
             <h2>Podcast Information:</h2>
             <ul>
               <li>title: {feed.title}</li>
-              <li>author: {feed.author.join(", ")}</li>
+              <li>authors: {feed.authors.join(", ")}</li>
               <li>description: {feed.description}</li>
             </ul>
           </>
