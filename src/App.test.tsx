@@ -3,7 +3,7 @@ import { act, fireEvent, getByText, render, screen, waitFor } from '@testing-lib
 
 import { BrowserRouter } from "react-router-dom";
 
-import { Episode, UpdateEpisode } from "./CommonAppTypes";
+import { Episode, Feed, UpdateEpisode } from "./CommonAppTypes";
 
 import { Service } from "./service/Service";
 import { TauriServiceContext } from "./service/TauriService";
@@ -31,7 +31,7 @@ const MockService : Service = {
     addVirtualChannel: async ( newChannel: string ) => {
         return await new Promise(() => {});
     },
-    addPodcastChannel: async ( newChannel: string ) => {
+    addPodcastChannel: async ( feed: Feed ) => {
         return await new Promise(() => {});
     },
     readRssInfo: async (feedUrl: string) => {

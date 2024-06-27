@@ -29,7 +29,9 @@ fn main() {
             command::find_new_episodes,
             command::add_virtual_channel,
             command::delete_channel,
-            command::update_episode
+            command::update_episode,
+            command::read_rss_info,
+            command::add_podcast_channel,
         ])
     .register_uri_scheme_protocol("stream", move |_app, request| {
 

@@ -1,3 +1,4 @@
+use serde;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -44,4 +45,11 @@ pub struct NewEpisode {
     pub title: String,
     pub uri: String,
     pub cache_uri: String
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Feed {
+    pub title: String,
+    pub author: Vec<String>,
+    pub description: String,
 }

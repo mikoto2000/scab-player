@@ -32,17 +32,19 @@ function PodcastChannelRegister(props : PodcastChannelRegisterProps) {
 
   function addNewChannel() {
 
-       service.addPodcastChannel(channelFeedUrl)
-           .then((_) => {
-               setAddChannelResultMessage("チャンネル登録に成功しました。");
+    if (feed) {
+       service.addPodcastChannel(feed)
+         .then((_) => {
+           setAddChannelResultMessage("チャンネル登録に成功しました。");
 
-               setChannelFeedUrl("");
+           setChannelFeedUrl("");
 
-               props.onRegisterChannel();
-           })
-           .catch((e) => {
-                setAddChannelResultMessage(`チャンネル登録に失敗しました。${e}`);
-           });
+           props.onRegisterChannel();
+         })
+         .catch((e) => {
+            setAddChannelResultMessage(`チャンネル登録に失敗しました。${e}`);
+         });
+    }
 
   }
 
