@@ -17,6 +17,20 @@ function getEpisodeIcon(episode : Episode) {
   return episode.is_finish ? '☑': '☐';
 }
 
+function getEpisodeDownloadArea(episode : Episode) {
+  // 仮想チャンネル(ローカルファイル)なのでダウンロードの必要はない
+  if (!episode.uri.startsWith("http")) {
+    return <></>;
+  }
+
+  return episode.cache_uri
+  ?
+    <button className="dowlnlad">再ダウンロード</button>
+  :
+    <button className="dowlnlad">ダウンロード</button>
+  ;
+}
+
 export function EpisodeList(props : EpisodeListProps) {
 
   const episodeList = props.episodes.map((episode, episode_index) => {
@@ -24,7 +38,7 @@ export function EpisodeList(props : EpisodeListProps) {
     return <li onClick={() => { props.onEpisodeClick(episode_index) }}
         key={episode.uri}
         >
-          {getEpisodeIcon(episode)} : {episode.title}
+          <div><div className="episode">{getEpisodeIcon(episode)} : {episode.title}</div> {getEpisodeDownloadArea(episode)}</div>
         </li>
 
   });

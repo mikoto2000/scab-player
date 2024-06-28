@@ -43,7 +43,7 @@ pub struct NewEpisode {
     pub channel_uri: String,
     pub title: String,
     pub uri: String,
-    pub cache_uri: String
+    pub cache_uri: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

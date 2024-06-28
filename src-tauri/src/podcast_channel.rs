@@ -24,7 +24,7 @@ pub fn find_new_episodes(feed: &Feed) -> Vec<NewEpisode> {
             channel_uri: feed.url.clone(),
             title: e.title.clone(),
             uri: e.media_url[0][0].clone(),
-            cache_uri: e.media_url[0][0].clone(),
+            cache_uri: None,
         }
     ).collect()
 }

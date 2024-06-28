@@ -46,11 +46,11 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
           controls src={
             props.episode
             ?
-              props.episode.uri.startsWith("http")
+              props.episode.cache_uri.startsWith("http")
               ?
-                props.episode.uri
+                props.episode.cache_uri
               :
-                convertFileSrc(props.episode.uri, 'stream')
+                convertFileSrc(props.episode.cache_uri, 'stream')
             :
               ""}
           onEnded={(e) => { props.onEnded(props.episodeIndex) }}

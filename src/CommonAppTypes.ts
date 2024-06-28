@@ -7,6 +7,7 @@ export type Episode = {
   id: number,
   channel_name: string,
   uri: string,
+  cache_uri: string,
   title: string,
   current_time: number,
   is_finish: boolean
