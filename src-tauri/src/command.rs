@@ -98,6 +98,9 @@ pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
 #[tauri::command]
 pub async fn download_podcast_episode(episode: Episode) -> Result<(), String>{
     println!("download_podcast_episode");
-    let _ = podcast_cacher::download_and_cache_podcast_episode(episode);
+    let _ = podcast_cacher::download_and_cache_podcast_episode(episode).await;
+
+    // TODO: 更新完了イベントをフロントエンドに飛ばす
+
     Ok(())
 }
