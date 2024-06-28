@@ -5,6 +5,7 @@ use feed_rs::model::Text;
 use crate::channel_manager;
 use crate::virtual_channel;
 use crate::podcast_channel;
+use crate::podcast_cacher;
 use crate::model::Channel;
 use crate::model::Episode;
 use crate::model::Entry;
@@ -92,4 +93,11 @@ pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
 pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
     println!("add_podcast");
     podcast_channel::add_podcast_channel(feed).unwrap()
+}
+
+#[tauri::command]
+pub async fn download_podcast_episode(episode: Episode) -> Result<(), String>{
+    println!("download_podcast_episode");
+    let _ = podcast_cacher::download_and_cache_podcast_episode(episode);
+    Ok(())
 }

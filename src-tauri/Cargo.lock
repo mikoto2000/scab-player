@@ -2238,6 +2238,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2532096657941c2fea9c289d370a250971c689d4f143798ff67113ec042024a5"
 
 [[package]]
+name = "md5"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "490cc448043f947bae3cbee9c203358d62dbee0db12107a74be5c30ccfd09771"
+
+[[package]]
 name = "mediatype"
 version = "0.19.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3513,6 +3519,7 @@ dependencies = [
  "diesel_migrations",
  "feed-rs",
  "libsqlite3-sys",
+ "md5",
  "reqwest 0.12.5",
  "serde",
  "serde_json",

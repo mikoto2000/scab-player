@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { appWindow } from '@tauri-apps/api/window'
 import { invoke } from '@tauri-apps/api/tauri'
 
-import { Feed, UpdateEpisode } from '../CommonAppTypes'
+import { Episode, Feed, UpdateEpisode } from '../CommonAppTypes'
 import { Service } from './Service'
 
 export const TauriService : Service = {
@@ -26,6 +26,9 @@ export const TauriService : Service = {
     },
     addPodcastChannel: async ( feed: Feed ) => {
         return await invoke('add_podcast', { feed: feed});
+    },
+    downloadPodcastEpisode: async ( episode: Episode ) => {
+        return await invoke('download_podcast_episode', { episode: episode});
     },
     deleteChannel: async ( channelUri : string ) => {
         return await invoke('delete_channel', { channelUri: channelUri });

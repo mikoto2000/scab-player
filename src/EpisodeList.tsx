@@ -2,6 +2,7 @@ import React from 'react';
 
 import './EpisodeList.css'
 import { Episode } from './CommonAppTypes'
+import { useTauriService } from './service/TauriService'
 
 type EpisodeListProps = {
   episodes: Array<Episode>,
@@ -17,21 +18,33 @@ function getEpisodeIcon(episode : Episode) {
   return episode.is_finish ? '☑': '☐';
 }
 
-function getEpisodeDownloadArea(episode : Episode) {
-  // 仮想チャンネル(ローカルファイル)なのでダウンロードの必要はない
-  if (!episode.uri.startsWith("http")) {
-    return <></>;
+export function EpisodeList(props : EpisodeListProps) {
+
+  const service = useTauriService();
+
+  function download(event: React.MouseEvent<HTMLButtonElement>, episode : Episode) {
+    console.log("download!");
+    event.stopPropagation();
+    (async() => {
+      service.downloadPodcastEpisode(episode);
+    })();
   }
 
-  return episode.cache_uri
-  ?
-    <button className="dowlnlad">再ダウンロード</button>
-  :
-    <button className="dowlnlad">ダウンロード</button>
-  ;
-}
+  function getEpisodeDownloadArea(episode : Episode) {
 
-export function EpisodeList(props : EpisodeListProps) {
+    // 仮想チャンネル(ローカルファイル)なのでダウンロードの必要はない
+    if (!episode.uri.startsWith("http")) {
+      return <></>;
+    }
+
+    const label = episode.cache_uri
+    ?
+    "再ダウンロード"
+    :
+    "ダウンロード";
+
+    return <button className="dowlnlad" onClick={(event) => download(event, episode)}>{label}</button>;
+  }
 
   const episodeList = props.episodes.map((episode, episode_index) => {
 
