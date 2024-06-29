@@ -1,4 +1,5 @@
 use tauri;
+use tauri::AppHandle;
 
 use feed_rs::model::Text;
 
@@ -95,12 +96,10 @@ pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
     podcast_channel::add_podcast_channel(feed).unwrap()
 }
 
+// ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
+// 戻り値はキャッシュしたファイルのファイルパス
 #[tauri::command]
-pub async fn download_podcast_episode(episode: Episode) -> Result<(), String>{
+pub async fn download_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String>{
     println!("download_podcast_episode");
-    let _ = podcast_cacher::download_and_cache_podcast_episode(episode).await;
-
-    // TODO: 更新完了イベントをフロントエンドに飛ばす
-
-    Ok(())
+    podcast_cacher::download_and_cache_podcast_episode(app_handle, episode).await
 }

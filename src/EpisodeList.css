@@ -28,16 +28,3 @@
   border-color: lightgray;
 }
 
-.EpisodeList ul > li > div {
-  display: flex;
-  flex-direction: row;
-}
-
-.EpisodeList ul > li > div > div.episode {
-  flex-grow: 1;
-}
-
-.EpisodeList .download  {
-  flex-grow: 0;
-}
-

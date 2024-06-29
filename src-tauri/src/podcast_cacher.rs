@@ -1,15 +1,16 @@
 use std::io::prelude::*;
 use std::fs::File;
-use std::path::Path;
 use std::path::PathBuf;
 
-use tauri::api::path::local_data_dir;
+use tauri::AppHandle;
 
 use reqwest::get;
 
 use crate::model::Episode;
 
-pub async fn download_and_cache_podcast_episode(episode: Episode) {
+// ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
+// 戻り値はキャッシュしたファイルのファイルパス
+pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String> {
     println!("download_and_cache_podcast_episode");
 
     // データ取得
@@ -38,15 +39,17 @@ pub async fn download_and_cache_podcast_episode(episode: Episode) {
     // エピソードキャッシュ用フォルダパス組み立て
     // TODO: util 化
     // TODO: identifer をどうしようか...
-    let ldd = local_data_dir().unwrap();
-    let episode_cache_dir = Path::new(&ldd).join("dev.mikoto2000.scab-player").join("episodes");
+    let app_cache_dir = app_handle.path_resolver().app_cache_dir().unwrap();
+    let episode_cache_dir = app_cache_dir.join("episodes");
     let file_path = episode_cache_dir.join(formated_file_name);
 
 
     // ファイル保存
     println!("save to: {:?}", file_path);
-    let mut buffer = File::create(file_path).unwrap();
+    let mut buffer = File::create(file_path.clone()).unwrap();
     buffer.write_all(&episode_media_bytes).unwrap();
 
     // TODO: DB 内のエピソードの cache_uri を更新
+
+    Ok(file_path.clone().into_os_string().into_string().unwrap())
 }

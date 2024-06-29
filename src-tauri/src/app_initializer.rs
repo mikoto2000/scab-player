@@ -1,8 +1,5 @@
 use std::fs::{copy, create_dir_all};
-use std::path::Path;
 use std::path::PathBuf;
-
-use tauri::api::path::local_data_dir;
 
 use tauri::App;
 
@@ -12,17 +9,15 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 const DB_NAME : &str = "scab-player.db";
 
 pub fn init_db(app : &App) {
-    let identifier : &String = &app.config().tauri.bundle.identifier;
+    let app_cache_dir = app.path_resolver().app_cache_dir().unwrap();
 
     // エピソードキャッシュ用のフォルダを作成
-    let ldd = local_data_dir().unwrap();
-    let episode_cache_dir = Path::new(&ldd).join("episodes");
-    println!("{:?}", episode_cache_dir);
+    let episode_cache_dir = app_cache_dir.join("episodes");
+    println!("episode_cache_dir: {:?}", episode_cache_dir);
     create_dir_all(episode_cache_dir)
         .expect("エピソードキャッシュ用ディレクトリの作成に失敗しました。");
 
-    let local_data_dir_path : PathBuf = local_data_dir().unwrap();
-    let db_path : PathBuf =local_data_dir_path.join(identifier).join(DB_NAME);
+    let db_path : PathBuf = app_cache_dir.join(DB_NAME);
 
     println!("db_path: {:#?}", db_path);
 
