@@ -37,22 +37,37 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
     }
   }));
 
+  function getPlayerSrc(episode: Episode) {
+    // そもそもエピソードが無ければ空
+    if (!episode) {
+      return "";
+    }
+
+    // キャッシュ URI の有無確認
+    if (episode.cache_uri) {
+      // キャッシュ URI があれば、そちらを再生に使う
+      if (episode.cache_uri.startsWith("http")) {
+        return episode.cache_uri
+      } else {
+        return convertFileSrc(props.episode.cache_uri, 'stream')
+      }
+    } else {
+      // キャッシュ URI が無ければ、URI を使う
+      if (episode.uri.startsWith("http")) {
+        return episode.uri
+      } else {
+        return convertFileSrc(props.episode.uri, 'stream')
+      }
+    }
+  }
+
   return (
     <div className="Player">
       <figure>
         <figcaption>{ props.episode ? props.episode.title : ""}</figcaption>
         <audio
           autoPlay={props.isAutoPlay}
-          controls src={
-            props.episode
-            ?
-              props.episode.cache_uri.startsWith("http")
-              ?
-                props.episode.cache_uri
-              :
-                convertFileSrc(props.episode.cache_uri, 'stream')
-            :
-              ""}
+          controls src={getPlayerSrc(props.episode)}
           onEnded={(e) => { props.onEnded(props.episodeIndex) }}
           ref={audioElement}
         />
