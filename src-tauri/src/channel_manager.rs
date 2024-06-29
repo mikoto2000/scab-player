@@ -1,3 +1,6 @@
+use std::fs::remove_file;
+use std::path::Path;
+
 use diesel::prelude::*;
 
 use crate::model::Channel;
@@ -109,12 +112,24 @@ pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
 
     let mut conn = establish_connection();
 
+    // キャッシュファイル削除のためにエピソードを取得しておく
+    let episodes = get_episodes((&channel_uri).to_string())?;
+
     let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
         .execute(&mut conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(delete_row_count) => Ok(delete_row_count)
+        Ok(delete_row_count) => {
+            // キャッシュファイルの削除
+            episodes.iter()
+                .filter(|e| e.cache_uri != None)
+                .for_each(|e| 
+                    remove_file(Path::new(&e.cache_uri.clone().unwrap())).unwrap()
+                );
+
+            Ok(delete_row_count)
+        }
     }
 }
 
