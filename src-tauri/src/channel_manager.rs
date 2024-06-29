@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 
 use crate::model::Channel;
-
+use crate::model::UpdateEpisodeAddCacheUrl;
 
 pub fn get_channels() -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
@@ -135,6 +135,23 @@ pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
         Ok(update_row_count) => Ok(update_row_count)
     }
 }
+
+pub fn update_episode_add_cache_uri(update_episode: UpdateEpisodeAddCacheUrl) -> Result<usize, String> {
+    use crate::schema::episode;
+    use crate::sqlite3::establish_connection;
+
+    let mut conn = establish_connection();
+
+    let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
+        .set(update_episode)
+        .execute(&mut conn);
+
+    match update_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(update_row_count) => Ok(update_row_count)
+    }
+}
+
 
 #[cfg(test)]
 mod channel_manager_tests {

@@ -61,3 +61,11 @@ pub struct Feed {
     pub url: String,
     pub entries: Vec<Entry>,
 }
+
+#[derive(AsChangeset, Serialize, Deserialize, Debug)]
+#[diesel(table_name = episode)]
+pub struct UpdateEpisodeAddCacheUrl {
+    pub id: i32,
+    pub cache_uri: String
+}
+

@@ -6,7 +6,9 @@ use tauri::AppHandle;
 
 use reqwest::get;
 
+use crate::channel_manager::update_episode_add_cache_uri;
 use crate::model::Episode;
+use crate::model::UpdateEpisodeAddCacheUrl;
 
 // ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
 // 戻り値はキャッシュしたファイルのファイルパス
@@ -50,6 +52,12 @@ pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: 
     buffer.write_all(&episode_media_bytes).unwrap();
 
     // TODO: DB 内のエピソードの cache_uri を更新
+    let file_path_string = file_path.clone().into_os_string().into_string().unwrap();
+    let update_episode = UpdateEpisodeAddCacheUrl {
+        id: episode.id.clone(),
+        cache_uri: file_path_string.clone()
+    };
+    update_episode_add_cache_uri(update_episode)?;
 
-    Ok(file_path.clone().into_os_string().into_string().unwrap())
+    Ok(file_path_string)
 }
