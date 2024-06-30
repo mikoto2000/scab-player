@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, getByText, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BrowserRouter } from "react-router-dom";
 
@@ -123,7 +123,7 @@ test('episode list', async () => {
   await waitFor(async () => {
       const channelLiElements = Array.from(document.querySelectorAll('.ChannelList li'));
       expect(channelLiElements.length).toBe(2);
-      await fireEvent.click(
+      fireEvent.click(
           channelLiElements[0]
       );
   });

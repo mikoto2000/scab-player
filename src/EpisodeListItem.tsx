@@ -22,7 +22,7 @@ export function EpisodeListItem(props : EpisodeListItemProps) {
     if (props.episode.cache_uri) {
       setDownloaded(true);
     }
-  });
+  }, []);
 
   function getEpisodeIcon(episode : Episode) {
 
