@@ -31,7 +31,7 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
         name: name.as_str()
     };
 
-    let insert_result = diesel::insert_into(channel::table)
+    let insert_result = diesel::insert_or_ignore_into(channel::table)
         .values(new_channel)
         .execute(&mut conn);
 
@@ -96,7 +96,7 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
 
     let mut conn = establish_connection();
 
-    let insert_result = diesel::insert_into(episode::table)
+    let insert_result = diesel::insert_or_ignore_into(episode::table)
         .values(episodes)
         .execute(&mut conn);
 
