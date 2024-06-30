@@ -1,3 +1,23 @@
+.EpisodeList > .title-area {
+  display: flex;
+  flex-direction: row;
+}
+
+.EpisodeList .title {
+  flex-grow: 1;
+}
+
+.EpisodeList .control {
+  display: flex;
+  flex-direction: row;
+  padding-right: 1em;
+}
+
+.EpisodeList .control > label {
+  align-content: center;
+  flex-grow: 0;
+}
+
 .EpisodeList {
   display: flex;
   flex-direction: column;
