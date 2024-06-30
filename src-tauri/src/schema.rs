@@ -16,6 +16,7 @@ diesel::table! {
         current_time -> Nullable<Integer>,
         is_finish -> Bool,
         cache_uri -> Nullable<Text>,
+        publish_date -> Nullable<Text>,
     }
 }
 

@@ -78,6 +78,7 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
             episode::current_time,
             episode::is_finish,
             episode::cache_uri,
+            episode::publish_date,
             ))
         .filter(episode::channel_uri.eq(channel_uri))
         .load::<Episode>(&mut conn);
