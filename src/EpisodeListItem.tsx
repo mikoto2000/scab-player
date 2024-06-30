@@ -47,7 +47,7 @@ export function EpisodeListItem(props : EpisodeListItemProps) {
     :
     "ダウンロード";
 
-    return <button className="dowlnlad" onClick={(event) => download(event, episode)}>{label}</button>;
+    return <button className="download" onClick={(event) => download(event, episode)}>{label}</button>;
   }
 
   function download(event: React.MouseEvent<HTMLButtonElement>, episode : Episode) {

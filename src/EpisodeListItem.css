@@ -7,8 +7,9 @@ div.EpisodeListItem > div.episode {
   flex-grow: 1;
 }
 
-div.EpisodeListItem .download  {
+div.EpisodeListItem > button.download  {
   flex-grow: 0;
+  min-width: 7.5em;
 }
 
 
