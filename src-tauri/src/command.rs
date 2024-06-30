@@ -52,7 +52,7 @@ pub fn delete_channel(channel_uri : String) -> Result<usize, String> {
 
 #[tauri::command]
 pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
-    println!("read_rss_info");
+    //println!("read_rss_info");
 
     // RSS 取得
     use reqwest::blocking::get;
@@ -85,14 +85,15 @@ pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
                 src: None,
                 content: "".to_string(),
             }).content,
-            media_url: e.media.iter().map(|m| m.content.iter().map(|c| c.url.clone().unwrap().to_string()).collect()).collect()
+            media_url: e.media.iter().map(|m| m.content.iter().map(|c| c.url.clone().unwrap().to_string()).collect()).collect(),
+            publish_date: Some(e.published.unwrap().to_string()),
         }).collect(),
     })
 }
 
 #[tauri::command]
 pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
-    println!("add_podcast");
+    //println!("add_podcast");
     podcast_channel::add_podcast_channel(feed).unwrap()
 }
 
@@ -100,6 +101,6 @@ pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
 // 戻り値はキャッシュしたファイルのファイルパス
 #[tauri::command]
 pub async fn download_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String>{
-    println!("download_podcast_episode");
+    //println!("download_podcast_episode");
     podcast_cacher::download_and_cache_podcast_episode(app_handle, episode).await
 }

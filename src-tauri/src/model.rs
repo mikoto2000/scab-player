@@ -27,6 +27,7 @@ pub struct Episode {
     pub current_time: Option<i32>,
     pub is_finish: bool,
     pub cache_uri: Option<String>,
+    pub publish_date: Option<String>,
 }
 
 #[derive(AsChangeset, Serialize, Deserialize, Debug)]
@@ -43,7 +44,8 @@ pub struct NewEpisode {
     pub channel_uri: String,
     pub title: String,
     pub uri: String,
-    pub cache_uri: Option<String>
+    pub cache_uri: Option<String>,
+    pub publish_date: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -51,6 +53,7 @@ pub struct Entry {
     pub id: String,
     pub title: String,
     pub media_url: Vec<Vec<String>>,
+    pub publish_date: Option<String>
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

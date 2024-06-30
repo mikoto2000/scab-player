@@ -10,7 +10,8 @@ export type Episode = {
   cache_uri: string,
   title: string,
   current_time: number,
-  is_finish: boolean
+  is_finish: boolean,
+  publish_date: string,
 };
 
 export type UpdateEpisode = {
