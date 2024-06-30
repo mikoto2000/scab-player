@@ -1,9 +1,9 @@
 import React from 'react';
-import { act, fireEvent, getByText, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BrowserRouter } from "react-router-dom";
 
-import { Episode, UpdateEpisode } from "./CommonAppTypes";
+import { Episode, Feed, UpdateEpisode } from "./CommonAppTypes";
 
 import { Service } from "./service/Service";
 import { TauriServiceContext } from "./service/TauriService";
@@ -29,6 +29,15 @@ const MockService : Service = {
         });
     },
     addVirtualChannel: async ( newChannel: string ) => {
+        return await new Promise(() => {});
+    },
+    readRssInfo: async (feedUrl: string) => {
+        return await new Promise(() => {});
+    },
+    addPodcastChannel: async ( feed: Feed ) => {
+        return await new Promise(() => {});
+    },
+    downloadPodcastEpisode: async ( episode: Episode ) => {
         return await new Promise(() => {});
     },
     deleteChannel: async ( channelUri : string ) => {
@@ -114,7 +123,7 @@ test('episode list', async () => {
   await waitFor(async () => {
       const channelLiElements = Array.from(document.querySelectorAll('.ChannelList li'));
       expect(channelLiElements.length).toBe(2);
-      await fireEvent.click(
+      fireEvent.click(
           channelLiElements[0]
       );
   });

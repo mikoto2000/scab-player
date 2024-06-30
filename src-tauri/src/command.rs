@@ -1,9 +1,16 @@
 use tauri;
+use tauri::AppHandle;
+
+use feed_rs::model::Text;
 
 use crate::channel_manager;
 use crate::virtual_channel;
+use crate::podcast_channel;
+use crate::podcast_cacher;
 use crate::model::Channel;
 use crate::model::Episode;
+use crate::model::Entry;
+use crate::model::Feed;
 use crate::model::NewEpisode;
 use crate::model::UpdateEpisode;
 
@@ -43,3 +50,56 @@ pub fn delete_channel(channel_uri : String) -> Result<usize, String> {
     channel_manager::delete_channel(&channel_uri)
 }
 
+#[tauri::command]
+pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
+    println!("read_rss_info");
+
+    // RSS 取得
+    use reqwest::blocking::get;
+    let response = get(channel_uri.clone()).unwrap();
+
+    // RSS パース
+    use feed_rs::parser;
+    let feed = parser::parse(response.text().unwrap().as_bytes()).unwrap();
+
+    Ok(Feed {
+        title: feed.title
+            .unwrap_or_else(|| Text {
+                content_type: "text/plain; charset=utf-8;".parse().unwrap(),
+                src: None,
+                content: "".to_string(),
+            }).content,
+        authors: feed.authors.iter().map(|e|
+                e.name.clone()
+            ).collect(),
+        description: feed.description.unwrap_or_else(|| Text {
+                content_type: "text/plain; charset=utf-8;".parse().unwrap(),
+                src: None,
+                content: "".to_string(),
+            }).content,
+        url: channel_uri.clone(),
+        entries: feed.entries.iter().map(|e| Entry {
+            id: e.id.clone(),
+            title: e.title.clone().unwrap_or_else(|| Text {
+                content_type: "text/plain; charset=utf-8;".parse().unwrap(),
+                src: None,
+                content: "".to_string(),
+            }).content,
+            media_url: e.media.iter().map(|m| m.content.iter().map(|c| c.url.clone().unwrap().to_string()).collect()).collect()
+        }).collect(),
+    })
+}
+
+#[tauri::command]
+pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
+    println!("add_podcast");
+    podcast_channel::add_podcast_channel(feed).unwrap()
+}
+
+// ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
+// 戻り値はキャッシュしたファイルのファイルパス
+#[tauri::command]
+pub async fn download_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String>{
+    println!("download_podcast_episode");
+    podcast_cacher::download_and_cache_podcast_episode(app_handle, episode).await
+}

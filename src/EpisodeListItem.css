@@ -1,0 +1,14 @@
+div.EpisodeListItem {
+  display: flex;
+  flex-direction: row;
+}
+
+div.EpisodeListItem > div.episode {
+  flex-grow: 1;
+}
+
+div.EpisodeListItem .download  {
+  flex-grow: 0;
+}
+
+

@@ -1,6 +1,10 @@
+use std::fs::remove_file;
+use std::path::Path;
+
 use diesel::prelude::*;
 
 use crate::model::Channel;
+use crate::model::UpdateEpisodeAddCacheUrl;
 
 pub fn get_channels() -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
@@ -27,7 +31,7 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
         name: name.as_str()
     };
 
-    let insert_result = diesel::insert_into(channel::table)
+    let insert_result = diesel::insert_or_ignore_into(channel::table)
         .values(new_channel)
         .execute(&mut conn);
 
@@ -72,7 +76,9 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
             episode::title,
             episode::uri,
             episode::current_time,
-            episode::is_finish))
+            episode::is_finish,
+            episode::cache_uri,
+            ))
         .filter(episode::channel_uri.eq(channel_uri))
         .load::<Episode>(&mut conn);
 
@@ -90,7 +96,7 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
 
     let mut conn = establish_connection();
 
-    let insert_result = diesel::insert_into(episode::table)
+    let insert_result = diesel::insert_or_ignore_into(episode::table)
         .values(episodes)
         .execute(&mut conn);
 
@@ -106,12 +112,24 @@ pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
 
     let mut conn = establish_connection();
 
+    // キャッシュファイル削除のためにエピソードを取得しておく
+    let episodes = get_episodes((&channel_uri).to_string())?;
+
     let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
         .execute(&mut conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(delete_row_count) => Ok(delete_row_count)
+        Ok(delete_row_count) => {
+            // キャッシュファイルの削除
+            episodes.iter()
+                .filter(|e| e.cache_uri != None)
+                .for_each(|e| 
+                    remove_file(Path::new(&e.cache_uri.clone().unwrap())).unwrap()
+                );
+
+            Ok(delete_row_count)
+        }
     }
 }
 
@@ -132,6 +150,23 @@ pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
         Ok(update_row_count) => Ok(update_row_count)
     }
 }
+
+pub fn update_episode_add_cache_uri(update_episode: UpdateEpisodeAddCacheUrl) -> Result<usize, String> {
+    use crate::schema::episode;
+    use crate::sqlite3::establish_connection;
+
+    let mut conn = establish_connection();
+
+    let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
+        .set(update_episode)
+        .execute(&mut conn);
+
+    match update_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(update_row_count) => Ok(update_row_count)
+    }
+}
+
 
 #[cfg(test)]
 mod channel_manager_tests {
@@ -236,11 +271,13 @@ mod channel_manager_tests {
                 channel_uri: "channel_uri".to_string(),
                 title: "episode_title_1".to_string(),
                 uri: "episode_uri_1".to_string(),
+                cache_uri: "episode_uri_1".to_string(),
             },
             NewEpisode {
                 channel_uri: "channel_uri".to_string(),
                 title: "episode_title_2".to_string(),
                 uri: "episode_uri_2".to_string(),
+                cache_uri: "episode_uri_2".to_string(),
             },
         ];
 

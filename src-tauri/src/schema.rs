@@ -1,11 +1,13 @@
-table! {
+// @generated automatically by Diesel CLI.
+
+diesel::table! {
     channel (uri) {
         uri -> Text,
         name -> Text,
     }
 }
 
-table! {
+diesel::table! {
     episode (id) {
         id -> Integer,
         channel_uri -> Text,
@@ -13,12 +15,13 @@ table! {
         uri -> Text,
         current_time -> Nullable<Integer>,
         is_finish -> Bool,
+        cache_uri -> Nullable<Text>,
     }
 }
 
-joinable!(episode -> channel (channel_uri));
+diesel::joinable!(episode -> channel (channel_uri));
 
-allow_tables_to_appear_in_same_query!(
+diesel::allow_tables_to_appear_in_same_query!(
     channel,
     episode,
 );

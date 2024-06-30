@@ -7,6 +7,7 @@ export type Episode = {
   id: number,
   channel_name: string,
   uri: string,
+  cache_uri: string,
   title: string,
   current_time: number,
   is_finish: boolean
@@ -17,4 +18,10 @@ export type UpdateEpisode = {
   current_time: number,
   is_finish: boolean
 };
+
+export type Feed = {
+  title: string;
+  authors: string[];
+  description: string;
+}
 

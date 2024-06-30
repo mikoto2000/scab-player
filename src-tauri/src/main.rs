@@ -5,6 +5,7 @@
 
 #[macro_use]
 extern crate diesel;
+extern crate diesel_migrations;
 
 mod app_initializer;
 mod channel_manager;
@@ -13,6 +14,8 @@ mod model;
 mod schema;
 mod sqlite3;
 mod virtual_channel;
+mod podcast_channel;
+mod podcast_cacher;
 
 fn main() {
   tauri::Builder::default()
@@ -28,7 +31,10 @@ fn main() {
             command::find_new_episodes,
             command::add_virtual_channel,
             command::delete_channel,
-            command::update_episode
+            command::update_episode,
+            command::read_rss_info,
+            command::add_podcast,
+            command::download_podcast_episode,
         ])
     .register_uri_scheme_protocol("stream", move |_app, request| {
 

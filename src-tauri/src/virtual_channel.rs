@@ -37,8 +37,9 @@ pub fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
 
                 Some(NewEpisode {
                     channel_uri: channel_uri.clone(),
-                    uri: uri,
+                    uri: uri.clone(),
                     title: title,
+                    cache_uri: Some(uri.clone()),
                 })
             } else {
                 None
