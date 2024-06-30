@@ -1,21 +1,45 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import './EpisodeList.css'
 import { Episode } from './CommonAppTypes'
 import { EpisodeListItem } from './EpisodeListItem'
+import { Service } from './service/Service';
+import { useParams } from 'react-router-dom';
 
 type SortParam = "title" | "publishDate";
 type SortOrder = "asc" | "desc";
 
 type EpisodeListProps = {
-  episodes: Array<Episode>,
-  onEpisodeClick : (episodeIndex : number) => void
+  service: Service,
+  onEpisodeClick: (episodeIndex: number) => void
+  onLoadEpisodes: (episodes: Array<Episode>) => void
 };
 
-export function EpisodeList(props : EpisodeListProps) {
+export function EpisodeList(props: EpisodeListProps) {
 
+  const [episodes, setEpisodes] = useState<Array<Episode>>([]);
   const [sortTarget, setSortTarget] = useState<SortParam>("publishDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+
+  const { channelUrl } = useParams();
+  const decodedChannelUrl = decodeURIComponent(channelUrl ?? "");
+
+
+  async function updateErrorMessage(message: string) {
+    const errorArea = document.getElementById("error-area");
+    if (errorArea) {
+      errorArea.textContent = message;
+    }
+  }
+
+  useEffect(() => {
+    props.service.getEpisodes(decodedChannelUrl)
+      .then((episodes) => {
+        setEpisodes(episodes as Array<Episode>);
+        props.onLoadEpisodes(episodes);
+      })
+      .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
+  }, []);
 
   const タイトル昇順 = (a: Episode, b: Episode) => a.title.localeCompare(b.title);
   const タイトル降順 = (a: Episode, b: Episode) => -a.title.localeCompare(b.title);
@@ -62,34 +86,39 @@ export function EpisodeList(props : EpisodeListProps) {
         <h1 className="title">Episode list:</h1>
         <div className="control">
           <label>ソート順:</label>
-            <select
-              onChange={changeSortTarget}
-              value={sortTarget}>
-              <option value="title">タイトル</option>
-              <option value="publishDate">公開日</option>
-            </select>
-            <select
-              onChange={changeSortOrder}
-              value={sortOrder}
-              >
-              <option value="asc">昇順</option>
-              <option value="desc">降順</option>
-            </select>
+          <select
+            onChange={changeSortTarget}
+            value={sortTarget}>
+            <option value="title">タイトル</option>
+            <option value="publishDate">公開日</option>
+          </select>
+          <select
+            onChange={changeSortOrder}
+            value={sortOrder}
+          >
+            <option value="asc">昇順</option>
+            <option value="desc">降順</option>
+          </select>
+          <button onClick={async () => {
+            const feed = await props.service.readRssInfo(decodedChannelUrl);
+            await props.service.addPodcastChannel(feed);
+            window.location.reload();
+          }}>RSS 再読み込み</button>
         </div>
       </div>
       <ul>
-        {props.episodes.sort(orderFunc())
+        {episodes.sort(orderFunc())
           .map((e, episodeIndex) => {
             return (
               <li onClick={() => { props.onEpisodeClick(episodeIndex) }}
                 key={e.uri}
-                >
+              >
                 <EpisodeListItem
                   episodeIndex={episodeIndex}
                   episode={e}
-                  onEpisodeClick={props.onEpisodeClick}/>
+                  onEpisodeClick={props.onEpisodeClick} />
               </li>);
-        })}
+          })}
       </ul>
     </div>
   );

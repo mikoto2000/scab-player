@@ -1,6 +1,6 @@
 [package]
 name = "scab-player"
-version = "0.2.0"
+version = "1.0.0"
 description = "自炊オーディオブックプレイヤー"
 authors = ["mikoto2000@gmail.com"]
 edition = "2021"
@@ -22,6 +22,7 @@ walkdir = "2.5.0"
 reqwest = { version = "0.12.5", features = ["blocking"] }
 feed-rs = "2.0.0"
 md5 = "0.7.0"
+tauri-plugin-window-state = "0.1.1"
 
 [features]
 # by default Tauri runs in production mode

@@ -4,6 +4,8 @@ use crate::model::NewEpisode;
 
 pub fn add_podcast_channel(feed: Feed) -> Result<Vec<NewEpisode>, String> {
 
+    println!("{}", feed.url.clone());
+
     insert_channel(
         feed.url.clone(),
         feed.title.clone(),
