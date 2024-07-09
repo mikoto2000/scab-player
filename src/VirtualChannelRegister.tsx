@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { dialog } from '@tauri-apps/api'
+import { open } from '@tauri-apps/plugin-dialog'
 
 import './VirtualChannelRegister.css'
 import { Episode } from './CommonAppTypes'
@@ -18,7 +18,7 @@ function VirtualChannelRegister(props : VirtualChannelRegisterProps) {
   const service = useTauriService();
 
   async function selectChannelBaseDirectory() {
-    const directory = await dialog.open({
+    const directory = await open({
       title: "Select channel base directory",
       directory: true
     });

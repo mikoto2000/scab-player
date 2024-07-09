@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
-import { convertFileSrc } from '@tauri-apps/api/tauri'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 import './Player.css';
 import { Episode } from './CommonAppTypes'
@@ -49,14 +49,14 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
       if (episode.cache_uri.startsWith("http")) {
         return episode.cache_uri
       } else {
-        return convertFileSrc(props.episode.cache_uri, 'stream')
+        return convertFileSrc(episode.cache_uri, 'stream')
       }
     } else {
       // キャッシュ URI が無ければ、URI を使う
       if (episode.uri.startsWith("http")) {
         return episode.uri
       } else {
-        return convertFileSrc(props.episode.uri, 'stream')
+        return convertFileSrc(episode.uri, 'stream')
       }
     }
   }
@@ -68,7 +68,7 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
         <audio
           autoPlay={props.isAutoPlay}
           controls src={getPlayerSrc(props.episode)}
-          onEnded={(e) => { props.onEnded(props.episodeIndex) }}
+          onEnded={() => { props.onEnded(props.episodeIndex) }}
           ref={audioElement}
         />
       </figure>

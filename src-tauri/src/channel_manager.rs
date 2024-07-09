@@ -1,34 +1,36 @@
 use std::fs::remove_file;
 use std::path::Path;
 
+use tauri::AppHandle;
+
 use diesel::prelude::*;
 
 use crate::model::Channel;
 use crate::model::UpdateEpisodeAddCacheUrl;
 
-pub fn get_channels() -> Result<Vec<Channel>, String> {
+pub fn get_channels(app_handle: &AppHandle) -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
     let channels_result = channel.load::<Channel>(&mut conn);
 
     match channels_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(channels) => Ok(channels)
+        Ok(channels) => Ok(channels),
     }
 }
 
-pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
-    use crate::schema::channel;
+pub fn insert_channel(app_handle: &AppHandle, uri: String, name: String) -> Result<usize, String> {
     use crate::model::NewChannel;
+    use crate::schema::channel;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
 
     let new_channel = NewChannel {
         uri: uri.as_str(),
-        name: name.as_str()
+        name: name.as_str(),
     };
 
     let insert_result = diesel::insert_or_ignore_into(channel::table)
@@ -37,37 +39,36 @@ pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(insert_row_count) => Ok(insert_row_count)
+        Ok(insert_row_count) => Ok(insert_row_count),
     }
 }
 
-pub fn delete_channel(channel_uri: &String) -> Result<usize, String> {
+pub fn delete_channel(app_handle: &AppHandle, channel_uri: &String) -> Result<usize, String> {
     use crate::schema::channel;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
 
     // エピソード削除
-    delete_episodes(&channel_uri)?;
+    delete_episodes(app_handle, &channel_uri)?;
 
-    let delete_result = diesel::delete(channel::table.filter(channel::uri.eq(channel_uri)))
-        .execute(&mut conn);
+    let delete_result =
+        diesel::delete(channel::table.filter(channel::uri.eq(channel_uri))).execute(&mut conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(delete_row_count) => Ok(delete_row_count)
+        Ok(delete_row_count) => Ok(delete_row_count),
     }
-
 }
 
 use crate::model::Episode;
 
-pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
+pub fn get_episodes(app_handle: &AppHandle, channel_uri: String) -> Result<Vec<Episode>, String> {
     use crate::schema::channel;
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
     let get_episode_result = episode::dsl::episode
         .inner_join(channel::dsl::channel)
         .select((
@@ -79,23 +80,23 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
             episode::is_finish,
             episode::cache_uri,
             episode::publish_date,
-            ))
+        ))
         .filter(episode::channel_uri.eq(channel_uri))
         .load::<Episode>(&mut conn);
 
     match get_episode_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(episodes) => Ok(episodes)
+        Ok(episodes) => Ok(episodes),
     }
 }
 
 use crate::model::NewEpisode;
 
-pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
+pub fn insert_episodes(app_handle: &AppHandle, episodes: Vec<NewEpisode>) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
 
     let insert_result = diesel::insert_or_ignore_into(episode::table)
         .values(episodes)
@@ -103,18 +104,18 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(insert_row_count) => Ok(insert_row_count)
+        Ok(insert_row_count) => Ok(insert_row_count),
     }
 }
 
-pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
+pub fn delete_episodes(app_handle: &AppHandle, channel_uri: &String) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
 
     // キャッシュファイル削除のためにエピソードを取得しておく
-    let episodes = get_episodes((&channel_uri).to_string())?;
+    let episodes = get_episodes(app_handle, (&channel_uri).to_string())?;
 
     let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
         .execute(&mut conn);
@@ -123,11 +124,10 @@ pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
         Err(why) => Err(why.to_string().into()),
         Ok(delete_row_count) => {
             // キャッシュファイルの削除
-            episodes.iter()
+            episodes
+                .iter()
                 .filter(|e| e.cache_uri != None)
-                .for_each(|e| 
-                    remove_file(Path::new(&e.cache_uri.clone().unwrap())).unwrap()
-                );
+                .for_each(|e| remove_file(Path::new(&e.cache_uri.clone().unwrap())).unwrap());
 
             Ok(delete_row_count)
         }
@@ -136,11 +136,11 @@ pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
 
 use crate::model::UpdateEpisode;
 
-pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
+pub fn update_episode(app_handle: &AppHandle, update_episode: UpdateEpisode) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
 
     let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
         .set(update_episode)
@@ -148,15 +148,18 @@ pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
 
     match update_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(update_row_count) => Ok(update_row_count)
+        Ok(update_row_count) => Ok(update_row_count),
     }
 }
 
-pub fn update_episode_add_cache_uri(update_episode: UpdateEpisodeAddCacheUrl) -> Result<usize, String> {
+pub fn update_episode_add_cache_uri(
+    app_handle: &AppHandle,
+    update_episode: UpdateEpisodeAddCacheUrl,
+) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
+    let mut conn = establish_connection(app_handle);
 
     let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
         .set(update_episode)
@@ -164,225 +167,7 @@ pub fn update_episode_add_cache_uri(update_episode: UpdateEpisodeAddCacheUrl) ->
 
     match update_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(update_row_count) => Ok(update_row_count)
+        Ok(update_row_count) => Ok(update_row_count),
     }
 }
 
-
-#[cfg(test)]
-mod channel_manager_tests {
-    use std::process::Command;
-    use crate::channel_manager::*;
-
-    const LATEST_MIGRATION_DIR: &str = "./migrations/2022-04-29-021610_create_scab-player/";
-
-    fn before() {
-        clear_db();
-    }
-
-    fn after() {
-        clear_db();
-    }
-
-    #[test]
-    fn test_get_channels() {
-        before();
-
-        run_sql_from_file("./test/channel_manager/test_get_channels.sql", "./assets/scab-player.db");
-
-        let channels = get_channels().unwrap();
-        assert_eq!(channels.len(), 1);
-
-        let first_channel = channels.first().unwrap();
-
-        assert_eq!(first_channel.uri, "uri");
-        assert_eq!(first_channel.name, "name");
-
-        after();
-    }
-
-    #[test]
-    fn test_insert_channel() {
-        before();
-
-        let insert_count = insert_channel("insert_uri".to_string(), "insert_name".to_string());
-        assert_eq!(insert_count.unwrap(), 1);
-
-        let channels = get_channels().unwrap();
-        let first_channel = channels.first().unwrap();
-
-        assert_eq!(first_channel.uri, "insert_uri");
-        assert_eq!(first_channel.name, "insert_name");
-
-        after();
-    }
-
-    #[test]
-    fn test_delete_channel() {
-        before();
-
-        run_sql_from_file("./test/channel_manager/test_delete_channel.sql", "./assets/scab-player.db");
-
-        let channel_uri = "target_channel_uri".to_string();
-
-        let delete_count = delete_channel(&channel_uri).unwrap();
-        assert_eq!(delete_count, 1);
-
-        let target_channel = get_channels().unwrap();
-        assert_eq!(target_channel.len(), 1);
-
-        let target_episodes = get_episodes("target_channel_uri".to_string()).unwrap();
-        assert_eq!(target_episodes.len(), 0);
-
-        let no_target_episodes = get_episodes("no_target_channel_uri".to_string()).unwrap();
-        assert_eq!(no_target_episodes.len(), 2);
-
-        after();
-    }
-
-    #[test]
-    fn test_get_episodes() {
-        before();
-
-        run_sql_from_file("./test/channel_manager/test_get_episodes.sql", "./assets/scab-player.db");
-
-        let episodes = get_episodes("target_uri".to_string()).unwrap();
-        assert_eq!(episodes.len(), 1);
-
-        let first_episode = episodes.first().unwrap();
-
-        assert_eq!(first_episode.id, 1);
-        assert_eq!(first_episode.channel_name, "name");
-        assert_eq!(first_episode.title, "hit_episode_title");
-        assert_eq!(first_episode.uri, "hit_episode_uri");
-        assert_eq!(first_episode.current_time, None);
-        assert_eq!(first_episode.is_finish, false);
-
-        after();
-    }
-
-    #[test]
-    fn test_insert_episodes() {
-        before();
-
-        run_sql_from_file("./test/channel_manager/test_insert_episodes.sql", "./assets/scab-player.db");
-
-        let new_episodes = vec![
-            NewEpisode {
-                channel_uri: "channel_uri".to_string(),
-                title: "episode_title_1".to_string(),
-                uri: "episode_uri_1".to_string(),
-                cache_uri: "episode_uri_1".to_string(),
-            },
-            NewEpisode {
-                channel_uri: "channel_uri".to_string(),
-                title: "episode_title_2".to_string(),
-                uri: "episode_uri_2".to_string(),
-                cache_uri: "episode_uri_2".to_string(),
-            },
-        ];
-
-        let insert_count = insert_episodes(new_episodes);
-        assert_eq!(insert_count.unwrap(), 2);
-
-        let episodes = get_episodes("channel_uri".to_string()).unwrap();
-        let first_episode = episodes.first().unwrap();
-        assert_eq!(first_episode.id, 1);
-        assert_eq!(first_episode.channel_name, "channel_name");
-        assert_eq!(first_episode.title, "episode_title_1");
-        assert_eq!(first_episode.uri, "episode_uri_1");
-        assert_eq!(first_episode.current_time, None);
-        assert_eq!(first_episode.is_finish, false);
-
-        let second_episode = episodes.get(1).unwrap();
-        assert_eq!(second_episode.id, 2);
-        assert_eq!(second_episode.channel_name, "channel_name");
-        assert_eq!(second_episode.title, "episode_title_2");
-        assert_eq!(second_episode.uri, "episode_uri_2");
-        assert_eq!(second_episode.current_time, None);
-        assert_eq!(second_episode.is_finish, false);
-
-        after();
-    }
-
-    #[test]
-    fn test_delete_episodes() {
-        before();
-
-        run_sql_from_file("./test/channel_manager/test_delete_episodes.sql", "./assets/scab-player.db");
-
-        let channel_uri = "target_channel_uri".to_string();
-
-        let delete_count = delete_episodes(&channel_uri).unwrap();
-        assert_eq!(delete_count, 2);
-
-        let target_episodes = get_episodes("target_channel_uri".to_string()).unwrap();
-        assert_eq!(target_episodes.len(), 0);
-
-        let no_target_episodes = get_episodes("no_target_channel_uri".to_string()).unwrap();
-        assert_eq!(no_target_episodes.len(), 2);
-
-        after();
-    }
-
-    #[test]
-    fn test_update_episodes() {
-        before();
-
-        run_sql_from_file("./test/channel_manager/test_update_episodes.sql", "./assets/scab-player.db");
-
-        let episode = UpdateEpisode {
-            id: 1,
-            current_time: Some(255),
-            is_finish: true
-        };
-
-        let update_count = update_episode(episode).unwrap();
-        assert_eq!(update_count, 1);
-
-        let episodes = get_episodes("channel_uri".to_string()).unwrap();
-        let first_episode = episodes.first().unwrap();
-        assert_eq!(first_episode.id, 1);
-        assert_eq!(first_episode.channel_name, "channel_name");
-        assert_eq!(first_episode.title, "episode_title");
-        assert_eq!(first_episode.uri, "episode_uri");
-        assert_eq!(first_episode.current_time, Some(255));
-        assert_eq!(first_episode.is_finish, true);
-
-        let second_episode = episodes.get(1).unwrap();
-        assert_eq!(second_episode.id, 2);
-        assert_eq!(second_episode.channel_name, "channel_name");
-        assert_eq!(second_episode.title, "non_target_episode_title");
-        assert_eq!(second_episode.uri, "non_target_episode_uri");
-        assert_eq!(second_episode.current_time, None);
-        assert_eq!(second_episode.is_finish, false);
-
-        after();
-    }
-
-    fn clear_db() {
-        run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "down.sql").as_str(), "./assets/scab-player.db");
-        run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "up.sql").as_str(), "./assets/scab-player.db");
-    }
-
-    fn run_sql_from_file(file_path: &str, db_path: &str) {
-        let shell = get_shell();
-
-        Command::new(shell)
-                .args([
-                      "-c",
-                      format!("cat {} | sqlite3 {}", file_path, db_path).as_str()
-                ])
-                .output()
-                .expect("failed to execute process");
-    }
-
-    fn get_shell() -> &'static str {
-        if cfg!(target_os = "windows") {
-            "pwsh"
-        } else {
-            "sh"
-        }
-    }
-
-}

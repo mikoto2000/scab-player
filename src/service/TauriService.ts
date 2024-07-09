@@ -1,18 +1,18 @@
 import React, { useContext } from 'react';
 
-import { appWindow } from '@tauri-apps/api/window'
-import { invoke } from '@tauri-apps/api/tauri'
+import { getCurrent } from '@tauri-apps/api/webviewWindow'
+import { invoke } from '@tauri-apps/api/core'
+import { TauriEvent } from '@tauri-apps/api/event'
 
 import { Episode, Feed, UpdateEpisode } from '../CommonAppTypes'
 import { Service } from './Service'
 
 export const TauriService : Service = {
     onClose: async (handleCloseFunction) => {
-        appWindow.listen('tauri://close-requested', async ({ event, payload }) => {
+        getCurrent().listen(TauriEvent.WINDOW_CLOSE_REQUESTED, async ({ event, payload }) => {
 
           await handleCloseFunction();
-
-          appWindow.close();
+          getCurrent().destroy();
         });
     },
     getChannels: async () => {

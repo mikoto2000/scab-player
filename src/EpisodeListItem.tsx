@@ -63,9 +63,10 @@ export function EpisodeListItem(props : EpisodeListItemProps) {
 
   return (
     <div className="EpisodeListItem">
-      <div className="episode">
+      <a className="episode"
+      onClick={() => props.onEpisodeClick} >
         {getEpisodeIcon(props.episode)} : {props.episode.title}
-      </div>
+      </a>
       {getEpisodeDownloadArea(props.episode)}
     </div>
   );

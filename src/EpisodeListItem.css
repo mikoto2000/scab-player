@@ -3,7 +3,7 @@ div.EpisodeListItem {
   flex-direction: row;
 }
 
-div.EpisodeListItem > div.episode {
+div.EpisodeListItem > a.episode {
   flex-grow: 1;
 }
 
