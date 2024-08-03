@@ -2,6 +2,8 @@
 
 自炊オーディオブックプレイヤー
 
+![image](https://github.com/user-attachments/assets/0ba1b966-afc9-4f19-b976-43ef9ebbdeb2)
+
 ## 開発
 
 ```sh
