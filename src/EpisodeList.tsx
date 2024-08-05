@@ -24,7 +24,6 @@ export function EpisodeList(props: EpisodeListProps) {
   const { channelUrl } = useParams();
   const decodedChannelUrl = decodeURIComponent(channelUrl ?? "");
 
-
   async function updateErrorMessage(message: string) {
     const errorArea = document.getElementById("error-area");
     if (errorArea) {
@@ -39,7 +38,7 @@ export function EpisodeList(props: EpisodeListProps) {
         props.onLoadEpisodes(episodes);
       })
       .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
-  }, [props, decodedChannelUrl]);
+  }, [decodedChannelUrl]);
 
   const タイトル昇順 = (a: Episode, b: Episode) => a.title.localeCompare(b.title);
   const タイトル降順 = (a: Episode, b: Episode) => -a.title.localeCompare(b.title);

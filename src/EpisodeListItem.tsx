@@ -17,11 +17,13 @@ export function EpisodeListItem(props : EpisodeListItemProps) {
 
   const service = useTauriService();
 
+  const cache_uri = props.episode.cache_uri;
+
   useEffect(() => {
     if (props.episode.cache_uri) {
       setDownloaded(true);
     }
-  }, [props.episode.cache_uri]);
+  }, [cache_uri]);
 
   function getEpisodeIcon(episode : Episode) {
 
