@@ -38,7 +38,7 @@ export function EpisodeList(props: EpisodeListProps) {
         props.onLoadEpisodes(episodes);
       })
       .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
-  }, [decodedChannelUrl]);
+  });
 
   const タイトル昇順 = (a: Episode, b: Episode) => a.title.localeCompare(b.title);
   const タイトル降順 = (a: Episode, b: Episode) => -a.title.localeCompare(b.title);

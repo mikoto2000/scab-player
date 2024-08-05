@@ -22,6 +22,8 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
 
   useEffect(() => {
     audioElement.current.currentTime = props.episode ? props.episode.current_time : 0;
+  // id にしないと無限ループになるので警告を抑制
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.episode?.id]);
 
   useImperativeHandle(ref, () => ({
