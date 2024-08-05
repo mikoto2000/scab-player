@@ -21,7 +21,6 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
   const audioElement = useRef<HTMLAudioElement>(null!);
 
   useEffect(() => {
-    console.log(props.episode?.id);
     audioElement.current.currentTime = props.episode ? props.episode.current_time : 0;
   }, [props.episode?.id]);
 

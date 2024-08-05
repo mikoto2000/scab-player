@@ -50,11 +50,9 @@ export function EpisodeListItem(props : EpisodeListItemProps) {
   }
 
   function download(event: React.MouseEvent<HTMLButtonElement>, episode : Episode) {
-    console.log("download!");
     event.stopPropagation();
     (async() => {
       let cache_uri = await service.downloadPodcastEpisode(episode);
-      console.log(cache_uri);
       episode.cache_uri = cache_uri;
       setDownloaded(true);
     })();
