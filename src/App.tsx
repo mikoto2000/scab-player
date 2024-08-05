@@ -16,6 +16,7 @@ import { EpisodeList } from './EpisodeList';
 function App() {
 
   const [channels, setChannels] = useState([] as Array<Channel>);
+  const [selectedChannel, setSelectedChannel] = useState(0);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
   const [playEpisodeIndex, setPlayEpisodeIndex] = useState(-1);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
@@ -71,6 +72,7 @@ function App() {
   async function handleChannelClick(channel_index: number) {
     const channel = channels[channel_index];
 
+    setSelectedChannel(channel_index);
     setPlayEpisodeIndex(-1);
     setIsAutoPlay(false);
 
@@ -165,8 +167,15 @@ function App() {
         <Link onClick={() => handleNavClick(playEpisodeIndex)} to="virtual_channel_register" >仮想チャンネル登録</Link>
         &nbsp; - &nbsp;
         <Link onClick={() => handleNavClick(playEpisodeIndex)} to="/" >チャンネル選択</Link>
-        &nbsp; - &nbsp;
-        <Link onClick={() => handleNavClick(playEpisodeIndex)} to="/episodes">エピソード再生</Link>
+        {channels[selectedChannel]
+          ?
+          <>
+            &nbsp; - &nbsp;
+            <Link onClick={() => handleNavClick(playEpisodeIndex)} to={`/episodes/${encodeURIComponent(channels[selectedChannel].uri)}`}>エピソード再生</Link>
+          </>
+          :
+          <></>
+        }
       </nav>
       <Player
         isAutoPlay={isAutoPlay}
