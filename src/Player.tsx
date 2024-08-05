@@ -7,9 +7,8 @@ import { Episode } from './CommonAppTypes'
 
 type PlayerProps = {
   isAutoPlay: boolean,
-  episodeIndex: number,
-  episode: Episode,
-  onEnded: (episodeIndex : number) => void,
+  episode?: Episode,
+  onEnded: (episodeIndex: number) => void,
 };
 
 export type PlayerType = {
@@ -22,8 +21,9 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
   const audioElement = useRef<HTMLAudioElement>(null!);
 
   useEffect(() => {
+    console.log(props.episode?.id);
     audioElement.current.currentTime = props.episode ? props.episode.current_time : 0;
-  }, [props.episodeIndex]);
+  }, [props.episode?.id]);
 
   useImperativeHandle(ref, () => ({
     getCurrentTime: () => {
@@ -37,7 +37,7 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
     }
   }));
 
-  function getPlayerSrc(episode: Episode) {
+  function getPlayerSrc(episode?: Episode) {
     // そもそもエピソードが無ければ空
     if (!episode) {
       return "";
@@ -49,14 +49,14 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
       if (episode.cache_uri.startsWith("http")) {
         return episode.cache_uri
       } else {
-        return convertFileSrc(props.episode.cache_uri, 'stream')
+        return convertFileSrc(props.episode?.cache_uri ?? "", 'stream')
       }
     } else {
       // キャッシュ URI が無ければ、URI を使う
       if (episode.uri.startsWith("http")) {
         return episode.uri
       } else {
-        return convertFileSrc(props.episode.uri, 'stream')
+        return convertFileSrc(props.episode?.uri ?? "", 'stream')
       }
     }
   }
@@ -68,7 +68,7 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
         <audio
           autoPlay={props.isAutoPlay}
           controls src={getPlayerSrc(props.episode)}
-          onEnded={() => { props.onEnded(props.episodeIndex) }}
+          onEnded={() => { props.onEnded(props.episode?.id ?? -1) }}
           ref={audioElement}
         />
       </figure>

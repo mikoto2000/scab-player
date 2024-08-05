@@ -18,7 +18,7 @@ function App() {
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [selectedChannel, setSelectedChannel] = useState(0);
   const [episodes, setEpisodes] = useState([] as Array<Episode>);
-  const [playEpisodeIndex, setPlayEpisodeIndex] = useState(-1);
+  const [playEpisodeId, setPlayEpisodeId] = useState(-1);
   const [isAutoPlay, setIsAutoPlay] = useState(true);
   const playerElement = useRef<PlayerType>(null!);
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ function App() {
 
     service.onClose(async () => {
       // 再生中エピソードがあるときのみ再生情報の更新を行う
-      const currentEpisode = episodes[playEpisodeIndex];
+      const currentEpisode = episodes.find((e) => e.id === playEpisodeId)
       if (currentEpisode != null) {
         await updateEpisode({
           id: currentEpisode.id,
@@ -56,16 +56,16 @@ function App() {
       .catch((err) => updateErrorMessage(`⚠️ get channel list error: ${err}`));
   }
 
-  async function handleNavClick(episodeIndex: number) {
-    if (!episodes[episodeIndex]) {
+  async function handleNavClick(episodeId: number) {
+    const episode = episodes.find((e) => e.id === episodeId);
+    if (!episode) {
       return;
     }
 
-    episodes[episodeIndex].current_time = playerElement.current.getCurrentTime();
     updateEpisode({
-      id: episodes[episodeIndex].id,
+      id: episode.id,
       current_time: Math.floor(playerElement.current.getCurrentTime()),
-      is_finish: episodes[episodeIndex].is_finish,
+      is_finish: episode.is_finish,
     });
   }
 
@@ -75,7 +75,7 @@ function App() {
     // 選択中チャンネルと同じだった場合、再生を続ける
     if (channels[selectedChannel].uri !== channels[channel_index].uri) {
       setSelectedChannel(channel_index);
-      setPlayEpisodeIndex(-1);
+      setPlayEpisodeId(-1);
       setIsAutoPlay(false);
     }
 
@@ -97,15 +97,20 @@ function App() {
 
   }
 
-  async function handleEnded(episodeIndex: number) {
-    episodes[episodeIndex].current_time = 0;
-    episodes[episodeIndex].is_finish = true;
+  async function handleEnded(episodeId: number) {
+    const episode = episodes.find((e) => e.id === episodeId);
+    if (!episode) {
+      return
+    }
+
+    episode.current_time = 0;
+    episode.is_finish = true;
     await updateEpisode({
-      id: episodes[episodeIndex].id,
+      id: episode.id,
       current_time: 0,
       is_finish: true,
     })
-      .then((_) => playNextEpisode(episodeIndex))
+      .then((_) => playNextEpisode(episodeId))
       .catch((err) => updateErrorMessage(`⚠️ update episode error: ${err}`));
   }
 
@@ -113,49 +118,56 @@ function App() {
     return service.updateEpisode(episode);
   }
 
-  async function handleEpisodeClick(episodeIndex: number) {
-
+  async function handleEpisodeClick(episodeId: number) {
     // エピソードの新規マークをはがす
-    const currentEpisode = episodes[episodeIndex];
+    const currentEpisode = episodes.find((e) => e.id === episodeId);
+    if (!currentEpisode) {
+      return
+    }
+
     if (!currentEpisode.current_time) {
       currentEpisode.current_time = 0;
     }
 
     // 初回選択時など、 oldEpisode が無ければ oldEpisode の更新をしない
-    if (playEpisodeIndex >= 0) {
-      const oldEpisode = episodes[playEpisodeIndex];
+    if (playEpisodeId >= 0) {
+      const oldEpisode = episodes.find((e) => e.id === playEpisodeId);
 
-      oldEpisode.current_time = Math.floor(playerElement.current.getCurrentTime());
+      if (oldEpisode) {
 
-      // 同じエピソードがクリックされている場合、再生状態にする
-      if (oldEpisode.id === currentEpisode.id) {
-        playerElement.current.play();
-        return;
+        oldEpisode.current_time = Math.floor(playerElement.current.getCurrentTime());
+
+        // 同じエピソードがクリックされている場合、再生状態にする
+        if (oldEpisode.id === currentEpisode.id) {
+          playerElement.current.play();
+          return;
+        }
+
+        // oldEpisode の情報更新
+        // audio 要素から currentTime を引っ張ってきて、「ここまで再生したよ」を記録する。
+        await updateEpisode({
+          id: oldEpisode.id,
+          current_time: Math.floor(playerElement.current.getCurrentTime()),
+          is_finish: oldEpisode.is_finish
+        });
       }
-
-      // oldEpisode の情報更新
-      // audio 要素から currentTime を引っ張ってきて、「ここまで再生したよ」を記録する。
-      await updateEpisode({
-        id: oldEpisode.id,
-        current_time: Math.floor(playerElement.current.getCurrentTime()),
-        is_finish: oldEpisode.is_finish
-      });
     }
 
     // 選択したエピソードをプレイヤーで再生
-    setPlayEpisodeIndex(episodeIndex);
+    setPlayEpisodeId(episodeId);
     setIsAutoPlay(true);
   }
 
-  async function playNextEpisode(episodeIndex: number) {
+  async function playNextEpisode(episodeId: number) {
 
-    const nextEpisodeIndex = episodeIndex + 1;
+    const currentEpisodeIndex = episodes.findIndex((e) => e.id === episodeId);
+    const nextEpisodeIndex = currentEpisodeIndex + 1;
     const nextEpisode = episodes[nextEpisodeIndex];
 
     if (nextEpisode != null) {
       // 継続再生の場合は、先頭から再生する
       nextEpisode.current_time = 0;
-      setPlayEpisodeIndex(nextEpisodeIndex);
+      setPlayEpisodeId(nextEpisode.id);
     } else {
       setIsAutoPlay(false);
     }
@@ -165,16 +177,16 @@ function App() {
   return (
     <div className="App">
       <nav>
-        <Link onClick={() => handleNavClick(playEpisodeIndex)} to="podcast_channel_register" >ポッドキャストチャンネル登録</Link>
+        <Link onClick={() => handleNavClick(playEpisodeId)} to="podcast_channel_register" >ポッドキャストチャンネル登録</Link>
         &nbsp; - &nbsp;
-        <Link onClick={() => handleNavClick(playEpisodeIndex)} to="virtual_channel_register" >仮想チャンネル登録</Link>
+        <Link onClick={() => handleNavClick(playEpisodeId)} to="virtual_channel_register" >仮想チャンネル登録</Link>
         &nbsp; - &nbsp;
-        <Link onClick={() => handleNavClick(playEpisodeIndex)} to="/" >チャンネル選択</Link>
+        <Link onClick={() => handleNavClick(playEpisodeId)} to="/" >チャンネル選択</Link>
         {channels[selectedChannel]
           ?
           <>
             &nbsp; - &nbsp;
-            <Link onClick={() => handleNavClick(playEpisodeIndex)} to={`/${encodeURIComponent(channels[selectedChannel].uri)}/episodes`}>エピソード再生</Link>
+            <Link onClick={() => handleNavClick(playEpisodeId)} to={`/${encodeURIComponent(channels[selectedChannel].uri)}/episodes`}>エピソード再生</Link>
           </>
           :
           <></>
@@ -182,8 +194,7 @@ function App() {
       </nav>
       <Player
         isAutoPlay={isAutoPlay}
-        episodeIndex={playEpisodeIndex}
-        episode={episodes[playEpisodeIndex] ?? null}
+        episode={episodes.find((e) => e.id === playEpisodeId)}
         onEnded={handleEnded}
         ref={playerElement}
       />

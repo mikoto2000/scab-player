@@ -7,7 +7,7 @@ import { Episode } from './CommonAppTypes'
 import { useTauriService } from './service/TauriService'
 
 type EpisodeListItemProps = {
-  episodeIndex: number,
+  episodeId: number,
   episode: Episode,
 };
 

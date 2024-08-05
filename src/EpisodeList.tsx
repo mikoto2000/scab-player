@@ -11,7 +11,7 @@ type SortOrder = "asc" | "desc";
 
 type EpisodeListProps = {
   service: Service,
-  onEpisodeClick: (episodeIndex: number) => void
+  onEpisodeClick: (episodeId: number) => void
   onLoadEpisodes: (episodes: Array<Episode>) => void
 };
 
@@ -39,7 +39,7 @@ export function EpisodeList(props: EpisodeListProps) {
         props.onLoadEpisodes(episodes);
       })
       .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
-  }, [decodedChannelUrl]);
+  }, [props, decodedChannelUrl]);
 
   const タイトル昇順 = (a: Episode, b: Episode) => a.title.localeCompare(b.title);
   const タイトル降順 = (a: Episode, b: Episode) => -a.title.localeCompare(b.title);
@@ -108,13 +108,13 @@ export function EpisodeList(props: EpisodeListProps) {
       </div>
       <ul>
         {episodes.sort(orderFunc())
-          .map((e, episodeIndex) => {
+          .map((e) => {
             return (
-              <li onClick={() => { props.onEpisodeClick(episodeIndex) }}
-                key={e.uri}
+              <li onClick={() => { props.onEpisodeClick(e.id) }}
+                key={e.id}
               >
                 <EpisodeListItem
-                  episodeIndex={episodeIndex}
+                  episodeId={e.id}
                   episode={e}
                 />
               </li>);
