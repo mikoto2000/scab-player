@@ -1,6 +1,6 @@
 {
   "name": "Rust",
-  "image": "mikoto2000/tauri:latest",
+  "image": "mikoto2000/tauri2:latest",
   "remoteEnv": {
     "SHELL": "bash",
     "DISPLAY": "${localEnv:DISPLAY}",

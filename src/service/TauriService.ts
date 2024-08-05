@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 
-import { appWindow } from '@tauri-apps/api/window'
-import { invoke } from '@tauri-apps/api/tauri'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { invoke } from '@tauri-apps/api/core'
 
 import { Episode, Feed, UpdateEpisode } from '../CommonAppTypes'
 import { Service } from './Service'
+const appWindow = getCurrentWebviewWindow()
 
 export const TauriService : Service = {
     onClose: async (handleCloseFunction) => {

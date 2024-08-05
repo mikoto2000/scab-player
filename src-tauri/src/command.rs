@@ -2,6 +2,7 @@ use tauri;
 use tauri::AppHandle;
 
 use feed_rs::model::Text;
+use tauri::State;
 
 use crate::channel_manager;
 use crate::virtual_channel;
@@ -13,17 +14,22 @@ use crate::model::Entry;
 use crate::model::Feed;
 use crate::model::NewEpisode;
 use crate::model::UpdateEpisode;
+use crate::AppState;
 
 #[tauri::command]
-pub fn get_channels() -> Result<Vec<Channel>, String> {
+pub fn get_channels(state: State<'_, AppState>) -> Result<Vec<Channel>, String> {
 //    println!("get_channels");
-    channel_manager::get_channels()
+    let conn = state.conn.clone();
+    let result = channel_manager::get_channels(&conn);
+    drop(conn);
+    result
 }
 
 #[tauri::command]
-pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
+pub fn get_episodes(state: State<'_, AppState>, channel_uri : String) -> Result<Vec<Episode>, String> {
+    let conn = state.conn.clone();
 //    println!("get_episodes");
-    channel_manager::get_episodes(channel_uri)
+    channel_manager::get_episodes(&conn, channel_uri)
 }
 
 #[tauri::command]
@@ -33,21 +39,24 @@ pub fn find_new_episodes(new_channel: String) -> Vec<NewEpisode> {
 }
 
 #[tauri::command]
-pub fn add_virtual_channel(new_channel: String) -> Result<Vec<NewEpisode>, String> {
+pub fn add_virtual_channel(state: State<'_, AppState>, new_channel: String) -> Result<Vec<NewEpisode>, String> {
+    let conn = state.conn.clone();
 //    println!("add_virtual_channel");
-    virtual_channel::add_virtual_channel(new_channel)
+    virtual_channel::add_virtual_channel(&conn, new_channel)
 }
 
 #[tauri::command]
-pub fn update_episode(episode : UpdateEpisode) -> Result<usize, String> {
+pub fn update_episode(state: State<'_, AppState>, episode : UpdateEpisode) -> Result<usize, String> {
+    let conn = state.conn.clone();
 //    println!("update_episode : {:?}", episode);
-    channel_manager::update_episode(episode)
+    channel_manager::update_episode(&conn, episode)
 }
 
 #[tauri::command]
-pub fn delete_channel(channel_uri : String) -> Result<usize, String> {
+pub fn delete_channel(state: State<'_, AppState>, channel_uri : String) -> Result<usize, String> {
+    let conn = state.conn.clone();
 //    println!("delete_channel : {:?}", channel_uri);
-    channel_manager::delete_channel(&channel_uri)
+    channel_manager::delete_channel(&conn, &channel_uri)
 }
 
 #[tauri::command]
@@ -92,15 +101,17 @@ pub fn read_rss_info(channel_uri: String) -> Result<Feed, String> {
 }
 
 #[tauri::command]
-pub fn add_podcast(feed: Feed) -> Vec<NewEpisode> {
+pub fn add_podcast(state: State<'_, AppState>, feed: Feed) -> Vec<NewEpisode> {
+    let conn = state.conn.clone();
     //println!("add_podcast");
-    podcast_channel::add_podcast_channel(feed).unwrap()
+    podcast_channel::add_podcast_channel(&conn, feed).unwrap()
 }
 
 // ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
 // 戻り値はキャッシュしたファイルのファイルパス
 #[tauri::command]
-pub async fn download_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String>{
+pub async fn download_podcast_episode(state: State<'_, AppState>, app_handle: AppHandle, episode: Episode) -> Result<String, String>{
+    let conn = state.conn.clone();
     //println!("download_podcast_episode");
-    podcast_cacher::download_and_cache_podcast_episode(app_handle, episode).await
+    podcast_cacher::download_and_cache_podcast_episode(&conn, app_handle, episode).await
 }

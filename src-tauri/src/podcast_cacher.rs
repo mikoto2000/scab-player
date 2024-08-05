@@ -1,10 +1,14 @@
 use std::io::prelude::*;
 use std::fs::File;
 use std::path::PathBuf;
+use std::sync::Arc;
+use std::sync::Mutex;
 
+use diesel::SqliteConnection;
 use tauri::AppHandle;
 
 use reqwest::get;
+use tauri::Manager;
 
 use crate::channel_manager::update_episode_add_cache_uri;
 use crate::model::Episode;
@@ -12,7 +16,7 @@ use crate::model::UpdateEpisodeAddCacheUrl;
 
 // ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
 // 戻り値はキャッシュしたファイルのファイルパス
-pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String> {
+pub async fn download_and_cache_podcast_episode(conn: &Arc<Mutex<SqliteConnection>>, app_handle: AppHandle, episode: Episode) -> Result<String, String> {
     println!("download_and_cache_podcast_episode");
 
     // データ取得
@@ -41,7 +45,7 @@ pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: 
     // エピソードキャッシュ用フォルダパス組み立て
     // TODO: util 化
     // TODO: identifer をどうしようか...
-    let app_cache_dir = app_handle.path_resolver().app_cache_dir().unwrap();
+    let app_cache_dir = app_handle.path().app_cache_dir().unwrap();
     let episode_cache_dir = app_cache_dir.join("episodes");
     let file_path = episode_cache_dir.join(formated_file_name);
 
@@ -57,7 +61,7 @@ pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: 
         id: episode.id.clone(),
         cache_uri: file_path_string.clone()
     };
-    update_episode_add_cache_uri(update_episode)?;
+    update_episode_add_cache_uri(&conn, update_episode)?;
 
     Ok(file_path_string)
 }

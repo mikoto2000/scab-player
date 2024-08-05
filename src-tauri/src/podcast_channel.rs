@@ -1,19 +1,25 @@
+use std::sync::Arc;
+use std::sync::Mutex;
+
+use diesel::SqliteConnection;
+
 use crate::channel_manager::*;
 use crate::model::Feed;
 use crate::model::NewEpisode;
 
-pub fn add_podcast_channel(feed: Feed) -> Result<Vec<NewEpisode>, String> {
+pub fn add_podcast_channel(conn: &Arc<Mutex<SqliteConnection>>, feed: Feed) -> Result<Vec<NewEpisode>, String> {
 
     println!("{}", feed.url.clone());
 
     insert_channel(
+        &conn,
         feed.url.clone(),
         feed.title.clone(),
     )?;
 
     let new_episodes = find_new_episodes(&feed);
 
-    insert_episodes(new_episodes.clone())?;
+    insert_episodes(&conn, new_episodes.clone())?;
 
     Ok(new_episodes)
 }
