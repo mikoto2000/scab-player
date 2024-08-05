@@ -72,11 +72,14 @@ function App() {
   async function handleChannelClick(channel_index: number) {
     const channel = channels[channel_index];
 
-    setSelectedChannel(channel_index);
-    setPlayEpisodeIndex(-1);
-    setIsAutoPlay(false);
+    // 選択中チャンネルと同じだった場合、再生を続ける
+    if (channels[selectedChannel].uri !== channels[channel_index].uri) {
+      setSelectedChannel(channel_index);
+      setPlayEpisodeIndex(-1);
+      setIsAutoPlay(false);
+    }
 
-    navigate(`/episodes/${encodeURIComponent(channel.uri)}`);
+    navigate(`/${encodeURIComponent(channel.uri)}/episodes`);
   }
 
   async function handleChannelDeleteClick(channel_index: number, event: React.MouseEvent<HTMLElement>) {
@@ -97,7 +100,7 @@ function App() {
   async function handleEnded(episodeIndex: number) {
     episodes[episodeIndex].current_time = 0;
     episodes[episodeIndex].is_finish = true;
-    updateEpisode({
+    await updateEpisode({
       id: episodes[episodeIndex].id,
       current_time: 0,
       is_finish: true,
@@ -132,7 +135,7 @@ function App() {
 
       // oldEpisode の情報更新
       // audio 要素から currentTime を引っ張ってきて、「ここまで再生したよ」を記録する。
-      updateEpisode({
+      await updateEpisode({
         id: oldEpisode.id,
         current_time: Math.floor(playerElement.current.getCurrentTime()),
         is_finish: oldEpisode.is_finish
@@ -171,7 +174,7 @@ function App() {
           ?
           <>
             &nbsp; - &nbsp;
-            <Link onClick={() => handleNavClick(playEpisodeIndex)} to={`/episodes/${encodeURIComponent(channels[selectedChannel].uri)}`}>エピソード再生</Link>
+            <Link onClick={() => handleNavClick(playEpisodeIndex)} to={`/${encodeURIComponent(channels[selectedChannel].uri)}/episodes`}>エピソード再生</Link>
           </>
           :
           <></>
@@ -180,7 +183,7 @@ function App() {
       <Player
         isAutoPlay={isAutoPlay}
         episodeIndex={playEpisodeIndex}
-        episode={episodes[playEpisodeIndex] || null}
+        episode={episodes[playEpisodeIndex] ?? null}
         onEnded={handleEnded}
         ref={playerElement}
       />
@@ -206,7 +209,7 @@ function App() {
             />
           </React.Fragment>
         } />
-        <Route path="/episodes/:channelUrl" element={
+        <Route path="/:channelUrl/episodes" element={
           <React.Fragment>
             <EpisodeList
               service={service}

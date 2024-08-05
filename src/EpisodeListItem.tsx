@@ -9,7 +9,6 @@ import { useTauriService } from './service/TauriService'
 type EpisodeListItemProps = {
   episodeIndex: number,
   episode: Episode,
-  onEpisodeClick : (episodeIndex : number) => void
 };
 
 export function EpisodeListItem(props : EpisodeListItemProps) {

@@ -23,7 +23,7 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
 
   useEffect(() => {
     audioElement.current.currentTime = props.episode ? props.episode.current_time : 0;
-  });
+  }, [props.episodeIndex]);
 
   useImperativeHandle(ref, () => ({
     getCurrentTime: () => {
@@ -68,7 +68,7 @@ export const Player = forwardRef((props : PlayerProps, ref : any) => {
         <audio
           autoPlay={props.isAutoPlay}
           controls src={getPlayerSrc(props.episode)}
-          onEnded={(e) => { props.onEnded(props.episodeIndex) }}
+          onEnded={() => { props.onEnded(props.episodeIndex) }}
           ref={audioElement}
         />
       </figure>
