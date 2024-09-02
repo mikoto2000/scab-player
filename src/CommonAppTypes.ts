@@ -1,3 +1,5 @@
+export type DisplayMode = "system" | "dark" | "light";
+
 export type Channel = {
   uri: string,
   name: string

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import { Link as MuiLink } from '@mui/material';
+import { Link as MuiLink, useMediaQuery } from '@mui/material';
 
 import './App.css';
 
-import { Channel, Episode, UpdateEpisode } from './CommonAppTypes'
+import { Channel, DisplayMode, Episode, UpdateEpisode } from './CommonAppTypes'
 import { useTauriService } from './service/TauriService'
 
 import VirtualChannelRegister from './VirtualChannelRegister';
@@ -15,9 +15,12 @@ import { EpisodeList } from './EpisodeList';
 import { ThemeProvider } from '@emotion/react';
 import { CssBaseline } from '@mui/material';
 import { theme } from './theme';
+import { Setting } from './Setting';
 
 
 function App() {
+
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("system");
 
   const [channels, setChannels] = useState([] as Array<Channel>);
   const [selectedChannel, setSelectedChannel] = useState(0);
@@ -29,7 +32,15 @@ function App() {
 
   const service = useTauriService();
 
+  const savedDisplayMode = localStorage.getItem("displayMode") as DisplayMode;
+  const systemDisplayModeIsDark = useMediaQuery('(prefers-color-scheme: dark)');
+  const systemDisplayMode = (systemDisplayModeIsDark ? "dark" : "light");
+
   useEffect(() => {
+    if (savedDisplayMode) {
+      setDisplayMode(savedDisplayMode);
+    }
+
     updateChannelList();
 
     service.onClose(async () => {
@@ -179,7 +190,7 @@ function App() {
 
 
   return (
-    <ThemeProvider theme={theme("dark")} >
+    <ThemeProvider theme={theme(displayMode === "system" ? systemDisplayMode : displayMode)} >
       <CssBaseline />
       <div className="App">
         <nav>
@@ -193,7 +204,8 @@ function App() {
           <MuiLink
             component={Link}
             onClick={() => handleNavClick(playEpisodeId)}
-            to="/" >チャンネル選択
+            to="/" >
+            チャンネル選択
           </MuiLink>
           {channels[selectedChannel]
             ?
@@ -209,6 +221,13 @@ function App() {
             :
             <></>
           }
+          &nbsp; - &nbsp;
+          <MuiLink
+            component={Link}
+            onClick={() => handleNavClick(playEpisodeId)}
+            to="/setting" >
+            設定
+          </MuiLink>
         </nav>
         <Player
           isAutoPlay={isAutoPlay}
@@ -240,6 +259,17 @@ function App() {
                 service={service}
                 onEpisodeClick={handleEpisodeClick}
                 onLoadEpisodes={(episodes: Array<Episode>) => setEpisodes(episodes)}
+              />
+            </React.Fragment>
+          } />
+          <Route path="/setting" element={
+            <React.Fragment>
+              <Setting
+                initialDisplayMode={displayMode}
+                onDisplayModeChange={(mode: DisplayMode) => {
+                  localStorage.setItem("displayMode", mode);
+                  setDisplayMode(mode);
+                }}
               />
             </React.Fragment>
           } />
