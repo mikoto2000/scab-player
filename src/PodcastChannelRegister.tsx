@@ -50,9 +50,8 @@ function PodcastChannelRegister(props : PodcastChannelRegisterProps) {
 
   return (
     <div className="PodcastChannelRegister">
-      <h1>Channel select</h1>
+      <h1>ポッドキャストチャンネル選択</h1>
       <div className="channel">
-        <h2>Channel: </h2>
         <div>
         RSS URL: <input type="text" onChange={changesChannelRssUrl}></input>
           <button onClick={readRssInfo}>RSS 読み込み</button>

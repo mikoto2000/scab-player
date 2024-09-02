@@ -186,15 +186,8 @@ function App() {
           <MuiLink
             component={Link}
             onClick={() => handleNavClick(playEpisodeId)}
-            to="podcast_channel_register" >
-            ポッドキャストチャンネル登録
-          </MuiLink>
-          &nbsp; - &nbsp;
-          <MuiLink
-            component={Link}
-            onClick={() => handleNavClick(playEpisodeId)}
-            to="virtual_channel_register" >
-            仮想チャンネル登録
+            to="channel_register" >
+            チャンネル登録
           </MuiLink>
           &nbsp; - &nbsp;
           <MuiLink
@@ -226,13 +219,9 @@ function App() {
         <div id="error-area">
         </div>
         <Routes>
-          <Route path="/podcast_channel_register" element={
+          <Route path="/channel_register" element={
             <React.Fragment>
               <PodcastChannelRegister onRegisterChannel={updateChannelList} />
-            </React.Fragment>
-          } />
-          <Route path="/virtual_channel_register" element={
-            <React.Fragment>
               <VirtualChannelRegister onRegisterChannel={updateChannelList} />
             </React.Fragment>
           } />
