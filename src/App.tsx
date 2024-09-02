@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Link as MuiLink } from '@mui/material';
 
 import './App.css';
 
@@ -11,6 +12,9 @@ import PodcastChannelRegister from './PodcastChannelRegister';
 import { ChannelList } from './ChannelList';
 import { Player, PlayerType } from './Player';
 import { EpisodeList } from './EpisodeList';
+import { ThemeProvider } from '@emotion/react';
+import { CssBaseline } from '@mui/material';
+import { theme } from './theme';
 
 
 function App() {
@@ -175,62 +179,84 @@ function App() {
 
 
   return (
-    <div className="App">
-      <nav>
-        <Link onClick={() => handleNavClick(playEpisodeId)} to="podcast_channel_register" >ポッドキャストチャンネル登録</Link>
-        &nbsp; - &nbsp;
-        <Link onClick={() => handleNavClick(playEpisodeId)} to="virtual_channel_register" >仮想チャンネル登録</Link>
-        &nbsp; - &nbsp;
-        <Link onClick={() => handleNavClick(playEpisodeId)} to="/" >チャンネル選択</Link>
-        {channels[selectedChannel]
-          ?
-          <>
-            &nbsp; - &nbsp;
-            <Link onClick={() => handleNavClick(playEpisodeId)} to={`/${encodeURIComponent(channels[selectedChannel].uri)}/episodes`}>エピソード再生</Link>
-          </>
-          :
-          <></>
-        }
-      </nav>
-      <Player
-        isAutoPlay={isAutoPlay}
-        episode={episodes.find((e) => e.id === playEpisodeId)}
-        onEnded={handleEnded}
-        ref={playerElement}
-      />
-      <div id="error-area">
+    <ThemeProvider theme={theme("dark")} >
+      <CssBaseline />
+      <div className="App">
+        <nav>
+          <MuiLink
+            component={Link}
+            onClick={() => handleNavClick(playEpisodeId)}
+            to="podcast_channel_register" >
+            ポッドキャストチャンネル登録
+          </MuiLink>
+          &nbsp; - &nbsp;
+          <MuiLink
+            component={Link}
+            onClick={() => handleNavClick(playEpisodeId)}
+            to="virtual_channel_register" >
+            仮想チャンネル登録
+          </MuiLink>
+          &nbsp; - &nbsp;
+          <MuiLink
+            component={Link}
+            onClick={() => handleNavClick(playEpisodeId)}
+            to="/" >チャンネル選択
+          </MuiLink>
+          {channels[selectedChannel]
+            ?
+            <>
+              &nbsp; - &nbsp;
+              <MuiLink
+                component={Link}
+                onClick={() => handleNavClick(playEpisodeId)}
+                to={`/${encodeURIComponent(channels[selectedChannel].uri)}/episodes`}>
+                エピソード再生
+              </MuiLink>
+            </>
+            :
+            <></>
+          }
+        </nav>
+        <Player
+          isAutoPlay={isAutoPlay}
+          episode={episodes.find((e) => e.id === playEpisodeId)}
+          onEnded={handleEnded}
+          ref={playerElement}
+        />
+        <div id="error-area">
+        </div>
+        <Routes>
+          <Route path="/podcast_channel_register" element={
+            <React.Fragment>
+              <PodcastChannelRegister onRegisterChannel={updateChannelList} />
+            </React.Fragment>
+          } />
+          <Route path="/virtual_channel_register" element={
+            <React.Fragment>
+              <VirtualChannelRegister onRegisterChannel={updateChannelList} />
+            </React.Fragment>
+          } />
+          <Route path="/" element={
+            <React.Fragment>
+              <ChannelList
+                channels={channels}
+                onChannelClick={(channel_index: number) => { handleChannelClick(channel_index) }}
+                onChannelDeleteClick={(channel_index: number, event: React.MouseEvent<HTMLElement>) => { handleChannelDeleteClick(channel_index, event) }}
+              />
+            </React.Fragment>
+          } />
+          <Route path="/:channelUrl/episodes" element={
+            <React.Fragment>
+              <EpisodeList
+                service={service}
+                onEpisodeClick={handleEpisodeClick}
+                onLoadEpisodes={(episodes: Array<Episode>) => setEpisodes(episodes)}
+              />
+            </React.Fragment>
+          } />
+        </Routes>
       </div>
-      <Routes>
-        <Route path="/podcast_channel_register" element={
-          <React.Fragment>
-            <PodcastChannelRegister onRegisterChannel={updateChannelList} />
-          </React.Fragment>
-        } />
-        <Route path="/virtual_channel_register" element={
-          <React.Fragment>
-            <VirtualChannelRegister onRegisterChannel={updateChannelList} />
-          </React.Fragment>
-        } />
-        <Route path="/" element={
-          <React.Fragment>
-            <ChannelList
-              channels={channels}
-              onChannelClick={(channel_index: number) => { handleChannelClick(channel_index) }}
-              onChannelDeleteClick={(channel_index: number, event: React.MouseEvent<HTMLElement>) => { handleChannelDeleteClick(channel_index, event) }}
-            />
-          </React.Fragment>
-        } />
-        <Route path="/:channelUrl/episodes" element={
-          <React.Fragment>
-            <EpisodeList
-              service={service}
-              onEpisodeClick={handleEpisodeClick}
-              onLoadEpisodes={(episodes: Array<Episode>) => setEpisodes(episodes)}
-            />
-          </React.Fragment>
-        } />
-      </Routes>
-    </div>
+    </ThemeProvider >
   );
 }
 
