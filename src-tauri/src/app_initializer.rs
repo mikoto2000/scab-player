@@ -1,11 +1,12 @@
-use std::fs::{create_dir_all};
+use std::fs::create_dir_all;
 
+use diesel::SqliteConnection;
 use tauri::App;
 
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
-pub fn init_db(app : &App) {
+pub fn init_db(app : &App) -> SqliteConnection {
     let app_cache_dir = app.path_resolver().app_cache_dir().unwrap();
 
     // エピソードキャッシュ用のフォルダを作成
@@ -18,4 +19,5 @@ pub fn init_db(app : &App) {
     let mut conn = establish_connection();
     let _ = conn.run_pending_migrations(MIGRATIONS);
 
+    conn
 }

@@ -6,68 +6,64 @@ use diesel::prelude::*;
 use crate::model::Channel;
 use crate::model::UpdateEpisodeAddCacheUrl;
 
-pub fn get_channels() -> Result<Vec<Channel>, String> {
+pub fn get_channels(conn: &mut SqliteConnection) -> Result<Vec<Channel>, String> {
     use crate::schema::channel::dsl::channel;
-    use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
-    let channels_result = channel.load::<Channel>(&mut conn);
+    let channels_result = channel.load::<Channel>(conn);
 
     match channels_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(channels) => Ok(channels)
+        Ok(channels) => Ok(channels),
     }
 }
 
-pub fn insert_channel(uri: String, name: String) -> Result<usize, String> {
-    use crate::schema::channel;
+pub fn insert_channel(
+    conn: &mut SqliteConnection,
+    uri: String,
+    name: String,
+) -> Result<usize, String> {
     use crate::model::NewChannel;
-    use crate::sqlite3::establish_connection;
-
-    let mut conn = establish_connection();
+    use crate::schema::channel;
 
     let new_channel = NewChannel {
         uri: uri.as_str(),
-        name: name.as_str()
+        name: name.as_str(),
     };
 
     let insert_result = diesel::insert_or_ignore_into(channel::table)
         .values(new_channel)
-        .execute(&mut conn);
+        .execute(conn);
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(insert_row_count) => Ok(insert_row_count)
+        Ok(insert_row_count) => Ok(insert_row_count),
     }
 }
 
-pub fn delete_channel(channel_uri: &String) -> Result<usize, String> {
+pub fn delete_channel(conn: &mut SqliteConnection, channel_uri: &String) -> Result<usize, String> {
     use crate::schema::channel;
-    use crate::sqlite3::establish_connection;
-
-    let mut conn = establish_connection();
 
     // エピソード削除
-    delete_episodes(&channel_uri)?;
+    delete_episodes(conn, &channel_uri)?;
 
-    let delete_result = diesel::delete(channel::table.filter(channel::uri.eq(channel_uri)))
-        .execute(&mut conn);
+    let delete_result =
+        diesel::delete(channel::table.filter(channel::uri.eq(channel_uri))).execute(conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(delete_row_count) => Ok(delete_row_count)
+        Ok(delete_row_count) => Ok(delete_row_count),
     }
-
 }
 
 use crate::model::Episode;
 
-pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
+pub fn get_episodes(
+    conn: &mut SqliteConnection,
+    channel_uri: String,
+) -> Result<Vec<Episode>, String> {
     use crate::schema::channel;
     use crate::schema::episode;
-    use crate::sqlite3::establish_connection;
 
-    let mut conn = establish_connection();
     let get_episode_result = episode::dsl::episode
         .inner_join(channel::dsl::channel)
         .select((
@@ -79,13 +75,13 @@ pub fn get_episodes(channel_uri : String) -> Result<Vec<Episode>, String> {
             episode::is_finish,
             episode::cache_uri,
             episode::publish_date,
-            ))
+        ))
         .filter(episode::channel_uri.eq(channel_uri))
-        .load::<Episode>(&mut conn);
+        .load::<Episode>(conn);
 
     match get_episode_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(episodes) => Ok(episodes)
+        Ok(episodes) => Ok(episodes),
     }
 }
 
@@ -103,31 +99,27 @@ pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(insert_row_count) => Ok(insert_row_count)
+        Ok(insert_row_count) => Ok(insert_row_count),
     }
 }
 
-pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
+pub fn delete_episodes(conn: &mut SqliteConnection, channel_uri: &String) -> Result<usize, String> {
     use crate::schema::episode;
-    use crate::sqlite3::establish_connection;
-
-    let mut conn = establish_connection();
 
     // キャッシュファイル削除のためにエピソードを取得しておく
-    let episodes = get_episodes((&channel_uri).to_string())?;
+    let episodes = get_episodes(conn, (&channel_uri).to_string())?;
 
     let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
-        .execute(&mut conn);
+        .execute(conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
         Ok(delete_row_count) => {
             // キャッシュファイルの削除
-            episodes.iter()
+            episodes
+                .iter()
                 .filter(|e| e.cache_uri != None)
-                .for_each(|e| 
-                    remove_file(Path::new(&e.cache_uri.clone().unwrap())).unwrap()
-                );
+                .for_each(|e| remove_file(Path::new(&e.cache_uri.clone().unwrap())).unwrap());
 
             Ok(delete_row_count)
         }
@@ -136,7 +128,25 @@ pub fn delete_episodes(channel_uri: &String) -> Result<usize, String> {
 
 use crate::model::UpdateEpisode;
 
-pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
+pub fn update_episode(
+    conn: &mut SqliteConnection,
+    update_episode: UpdateEpisode,
+) -> Result<usize, String> {
+    use crate::schema::episode;
+
+    let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
+        .set(update_episode)
+        .execute(conn);
+
+    match update_result {
+        Err(why) => Err(why.to_string().into()),
+        Ok(update_row_count) => Ok(update_row_count),
+    }
+}
+
+pub fn update_episode_add_cache_uri(
+    update_episode: UpdateEpisodeAddCacheUrl,
+) -> Result<usize, String> {
     use crate::schema::episode;
     use crate::sqlite3::establish_connection;
 
@@ -148,31 +158,14 @@ pub fn update_episode(update_episode: UpdateEpisode) -> Result<usize, String> {
 
     match update_result {
         Err(why) => Err(why.to_string().into()),
-        Ok(update_row_count) => Ok(update_row_count)
+        Ok(update_row_count) => Ok(update_row_count),
     }
 }
-
-pub fn update_episode_add_cache_uri(update_episode: UpdateEpisodeAddCacheUrl) -> Result<usize, String> {
-    use crate::schema::episode;
-    use crate::sqlite3::establish_connection;
-
-    let mut conn = establish_connection();
-
-    let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
-        .set(update_episode)
-        .execute(&mut conn);
-
-    match update_result {
-        Err(why) => Err(why.to_string().into()),
-        Ok(update_row_count) => Ok(update_row_count)
-    }
-}
-
 
 #[cfg(test)]
 mod channel_manager_tests {
-    use std::process::Command;
     use crate::channel_manager::*;
+    use std::process::Command;
 
     const LATEST_MIGRATION_DIR: &str = "./migrations/2022-04-29-021610_create_scab-player/";
 
@@ -188,7 +181,10 @@ mod channel_manager_tests {
     fn test_get_channels() {
         before();
 
-        run_sql_from_file("./test/channel_manager/test_get_channels.sql", "./assets/scab-player.db");
+        run_sql_from_file(
+            "./test/channel_manager/test_get_channels.sql",
+            "./assets/scab-player.db",
+        );
 
         let channels = get_channels().unwrap();
         assert_eq!(channels.len(), 1);
@@ -221,7 +217,10 @@ mod channel_manager_tests {
     fn test_delete_channel() {
         before();
 
-        run_sql_from_file("./test/channel_manager/test_delete_channel.sql", "./assets/scab-player.db");
+        run_sql_from_file(
+            "./test/channel_manager/test_delete_channel.sql",
+            "./assets/scab-player.db",
+        );
 
         let channel_uri = "target_channel_uri".to_string();
 
@@ -244,7 +243,10 @@ mod channel_manager_tests {
     fn test_get_episodes() {
         before();
 
-        run_sql_from_file("./test/channel_manager/test_get_episodes.sql", "./assets/scab-player.db");
+        run_sql_from_file(
+            "./test/channel_manager/test_get_episodes.sql",
+            "./assets/scab-player.db",
+        );
 
         let episodes = get_episodes("target_uri".to_string()).unwrap();
         assert_eq!(episodes.len(), 1);
@@ -265,7 +267,10 @@ mod channel_manager_tests {
     fn test_insert_episodes() {
         before();
 
-        run_sql_from_file("./test/channel_manager/test_insert_episodes.sql", "./assets/scab-player.db");
+        run_sql_from_file(
+            "./test/channel_manager/test_insert_episodes.sql",
+            "./assets/scab-player.db",
+        );
 
         let new_episodes = vec![
             NewEpisode {
@@ -309,7 +314,10 @@ mod channel_manager_tests {
     fn test_delete_episodes() {
         before();
 
-        run_sql_from_file("./test/channel_manager/test_delete_episodes.sql", "./assets/scab-player.db");
+        run_sql_from_file(
+            "./test/channel_manager/test_delete_episodes.sql",
+            "./assets/scab-player.db",
+        );
 
         let channel_uri = "target_channel_uri".to_string();
 
@@ -329,12 +337,15 @@ mod channel_manager_tests {
     fn test_update_episodes() {
         before();
 
-        run_sql_from_file("./test/channel_manager/test_update_episodes.sql", "./assets/scab-player.db");
+        run_sql_from_file(
+            "./test/channel_manager/test_update_episodes.sql",
+            "./assets/scab-player.db",
+        );
 
         let episode = UpdateEpisode {
             id: 1,
             current_time: Some(255),
-            is_finish: true
+            is_finish: true,
         };
 
         let update_count = update_episode(episode).unwrap();
@@ -361,20 +372,26 @@ mod channel_manager_tests {
     }
 
     fn clear_db() {
-        run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "down.sql").as_str(), "./assets/scab-player.db");
-        run_sql_from_file((LATEST_MIGRATION_DIR.to_string() + "up.sql").as_str(), "./assets/scab-player.db");
+        run_sql_from_file(
+            (LATEST_MIGRATION_DIR.to_string() + "down.sql").as_str(),
+            "./assets/scab-player.db",
+        );
+        run_sql_from_file(
+            (LATEST_MIGRATION_DIR.to_string() + "up.sql").as_str(),
+            "./assets/scab-player.db",
+        );
     }
 
     fn run_sql_from_file(file_path: &str, db_path: &str) {
         let shell = get_shell();
 
         Command::new(shell)
-                .args([
-                      "-c",
-                      format!("cat {} | sqlite3 {}", file_path, db_path).as_str()
-                ])
-                .output()
-                .expect("failed to execute process");
+            .args([
+                "-c",
+                format!("cat {} | sqlite3 {}", file_path, db_path).as_str(),
+            ])
+            .output()
+            .expect("failed to execute process");
     }
 
     fn get_shell() -> &'static str {
@@ -384,5 +401,4 @@ mod channel_manager_tests {
             "sh"
         }
     }
-
 }
