@@ -1,18 +1,24 @@
-use std::io::prelude::*;
 use std::fs::File;
+use std::io::prelude::*;
 use std::path::PathBuf;
 
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
+use tauri::State;
 
 use reqwest::get;
 
 use crate::channel_manager::update_episode_add_cache_uri;
 use crate::model::Episode;
 use crate::model::UpdateEpisodeAddCacheUrl;
+use crate::AppState;
 
 // ファイルをダウンロードし、キャッシュディレクトリへ保存する:w
 // 戻り値はキャッシュしたファイルのファイルパス
-pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: Episode) -> Result<String, String> {
+pub async fn download_and_cache_podcast_episode(
+    state: State<'_, AppState>,
+    app_handle: AppHandle,
+    episode: Episode,
+) -> Result<String, String> {
     println!("download_and_cache_podcast_episode");
 
     // データ取得
@@ -21,7 +27,6 @@ pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: 
     let response = get(episode_media_url.clone()).await.unwrap();
     let episode_media_bytes = response.bytes().await.unwrap();
     println!(" done.");
-
 
     // ファイル名組み立て
 
@@ -35,16 +40,14 @@ pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: 
     let file_name = md5::compute(episode_media_bytes.clone());
     let formated_file_name = format!("{:x}.{}", file_name, episode_media_extension_string);
 
-
     // ファイルパス組み立て
 
     // エピソードキャッシュ用フォルダパス組み立て
     // TODO: util 化
     // TODO: identifer をどうしようか...
-    let app_cache_dir = app_handle.path_resolver().app_cache_dir().unwrap();
+    let app_cache_dir = app_handle.path().app_cache_dir().unwrap();
     let episode_cache_dir = app_cache_dir.join("episodes");
     let file_path = episode_cache_dir.join(formated_file_name);
-
 
     // ファイル保存
     println!("save to: {:?}", file_path);
@@ -55,9 +58,13 @@ pub async fn download_and_cache_podcast_episode(app_handle: AppHandle, episode: 
     let file_path_string = file_path.clone().into_os_string().into_string().unwrap();
     let update_episode = UpdateEpisodeAddCacheUrl {
         id: episode.id.clone(),
-        cache_uri: file_path_string.clone()
+        cache_uri: file_path_string.clone(),
     };
-    update_episode_add_cache_uri(update_episode)?;
+
+    let state = state.clone();
+    let conn = state.conn.clone();
+    let mut conn = conn.lock().unwrap();
+    update_episode_add_cache_uri(&mut conn, update_episode)?;
 
     Ok(file_path_string)
 }

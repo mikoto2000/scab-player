@@ -1,54 +1,55 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
-  "package": {
-    "productName": "scab-player",
-    "version": "1.1.0"
-  },
-  "build": {
-    "distDir": "../build",
-    "devPath": "http://localhost:3000",
-    "beforeDevCommand": "npm run start",
-    "beforeBuildCommand": "npm run build"
-  },
-  "tauri": {
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "dev.mikoto2000.scab-player",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "resources": ["assets/*"],
-      "externalBin": [],
-      "copyright": "mikoto2000@gmail.com",
-      "category": "Music",
-      "shortDescription": "Self create audio book player.",
-      "longDescription": "Self create audio book player.",
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "assets/*"
+    ],
+    "externalBin": [],
+    "copyright": "mikoto2000@gmail.com",
+    "category": "Music",
+    "shortDescription": "Self create audio book player.",
+    "longDescription": "Self create audio book player.",
+    "macOS": {
+      "frameworks": [],
+      "exceptionDomain": "",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null
+    },
+    "linux": {
       "deb": {
         "depends": []
-      },
-      "macOS": {
-        "frameworks": [],
-        "exceptionDomain": "",
-        "signingIdentity": null,
-        "providerShortName": null,
-        "entitlements": null
-      },
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
       }
-    },
-    "updater": {
-      "active": false
-    },
-    "allowlist": {
-      "all": true
+    }
+  },
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../build",
+    "beforeDevCommand": "npm run start",
+    "devUrl": "http://localhost:3000"
+  },
+  "productName": "scab-player",
+  "mainBinaryName": "scab-player",
+  "version": "1.1.0",
+  "identifier": "dev.mikoto2000.scab-player",
+  "plugins": {},
+  "app": {
+    "security": {
+      "csp": null
     },
     "windows": [
       {
@@ -58,9 +59,6 @@
         "resizable": true,
         "fullscreen": false
       }
-    ],
-    "security": {
-      "csp": null
-    }
+    ]
   }
 }

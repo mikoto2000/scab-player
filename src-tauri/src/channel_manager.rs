@@ -87,15 +87,12 @@ pub fn get_episodes(
 
 use crate::model::NewEpisode;
 
-pub fn insert_episodes(episodes: Vec<NewEpisode>) -> Result<usize, String> {
+pub fn insert_episodes(conn: &mut SqliteConnection, episodes: Vec<NewEpisode>) -> Result<usize, String> {
     use crate::schema::episode;
-    use crate::sqlite3::establish_connection;
-
-    let mut conn = establish_connection();
 
     let insert_result = diesel::insert_or_ignore_into(episode::table)
         .values(episodes)
-        .execute(&mut conn);
+        .execute(conn);
 
     match insert_result {
         Err(why) => Err(why.to_string().into()),
@@ -109,8 +106,8 @@ pub fn delete_episodes(conn: &mut SqliteConnection, channel_uri: &String) -> Res
     // キャッシュファイル削除のためにエピソードを取得しておく
     let episodes = get_episodes(conn, (&channel_uri).to_string())?;
 
-    let delete_result = diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri)))
-        .execute(conn);
+    let delete_result =
+        diesel::delete(episode::table.filter(episode::channel_uri.eq(channel_uri))).execute(conn);
 
     match delete_result {
         Err(why) => Err(why.to_string().into()),
@@ -145,16 +142,14 @@ pub fn update_episode(
 }
 
 pub fn update_episode_add_cache_uri(
+    conn: &mut SqliteConnection,
     update_episode: UpdateEpisodeAddCacheUrl,
 ) -> Result<usize, String> {
     use crate::schema::episode;
-    use crate::sqlite3::establish_connection;
-
-    let mut conn = establish_connection();
 
     let update_result = diesel::update(episode::table.filter(episode::id.eq(update_episode.id)))
         .set(update_episode)
-        .execute(&mut conn);
+        .execute(conn);
 
     match update_result {
         Err(why) => Err(why.to_string().into()),

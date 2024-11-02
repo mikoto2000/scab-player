@@ -29,7 +29,7 @@ pub fn add_virtual_channel(
 
         let new_episodes = find_new_episodes(virtual_channel_path_str);
 
-        insert_episodes(new_episodes.clone())?;
+        insert_episodes(conn, new_episodes.clone())?;
 
         Ok(new_episodes)
     } else {

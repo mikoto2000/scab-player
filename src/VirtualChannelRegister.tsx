@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 
-import { dialog } from '@tauri-apps/api'
+import {  } from '@tauri-apps/api'
 
 import './VirtualChannelRegister.css'
 import { Episode } from './CommonAppTypes'
 import { useTauriService } from './service/TauriService'
+import * as dialog from "@tauri-apps/plugin-dialog"
 
 type VirtualChannelRegisterProps = {
   onRegisterChannel: () => void

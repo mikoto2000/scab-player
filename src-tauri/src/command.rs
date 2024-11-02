@@ -147,9 +147,10 @@ pub fn add_podcast(state: State<'_, AppState>, feed: Feed) -> Vec<NewEpisode> {
 // 戻り値はキャッシュしたファイルのファイルパス
 #[tauri::command]
 pub async fn download_podcast_episode(
+    state: State<'_, AppState>,
     app_handle: AppHandle,
     episode: Episode,
 ) -> Result<String, String> {
     //println!("download_podcast_episode");
-    podcast_cacher::download_and_cache_podcast_episode(app_handle, episode).await
+    podcast_cacher::download_and_cache_podcast_episode(state, app_handle, episode).await
 }

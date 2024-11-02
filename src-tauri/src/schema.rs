@@ -22,7 +22,4 @@ diesel::table! {
 
 diesel::joinable!(episode -> channel (channel_uri));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    channel,
-    episode,
-);
+diesel::allow_tables_to_appear_in_same_query!(channel, episode,);

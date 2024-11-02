@@ -14,7 +14,7 @@ pub fn add_podcast_channel(
 
     let new_episodes = find_new_episodes(&feed);
 
-    insert_episodes(new_episodes.clone())?;
+    insert_episodes(conn, new_episodes.clone())?;
 
     Ok(new_episodes)
 }
