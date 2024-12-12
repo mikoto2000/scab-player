@@ -4,7 +4,6 @@ import './EpisodeList.css'
 import { Episode } from './CommonAppTypes'
 import { EpisodeListItem } from './EpisodeListItem'
 import { Service } from './service/Service';
-import { useParams } from 'react-router-dom';
 
 type SortParam = "title" | "publishDate";
 type SortOrder = "asc" | "desc";

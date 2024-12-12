@@ -85,7 +85,6 @@ function App() {
   }
 
   async function handleChannelClick(channel_index: number) {
-    const channel = channels[channel_index];
 
     // 選択中チャンネルと同じだった場合、再生を続ける
     if (channels[selectedChannel].uri !== channels[channel_index].uri) {
