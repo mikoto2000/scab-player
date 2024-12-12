@@ -10,7 +10,8 @@ type SortParam = "title" | "publishDate";
 type SortOrder = "asc" | "desc";
 
 type EpisodeListProps = {
-  service: Service,
+  service: Service
+  channelUrl: string
   onEpisodeClick: (episodeId: number) => void
   onLoadEpisodes: (episodes: Array<Episode>) => void
 };
@@ -21,9 +22,6 @@ export function EpisodeList(props: EpisodeListProps) {
   const [sortTarget, setSortTarget] = useState<SortParam>("publishDate");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
 
-  const { channelUrl } = useParams();
-  const decodedChannelUrl = decodeURIComponent(channelUrl ?? "");
-
   async function updateErrorMessage(message: string) {
     const errorArea = document.getElementById("error-area");
     if (errorArea) {
@@ -32,7 +30,7 @@ export function EpisodeList(props: EpisodeListProps) {
   }
 
   useEffect(() => {
-    props.service.getEpisodes(decodedChannelUrl)
+    props.service.getEpisodes(props.channelUrl)
       .then((episodes) => {
         setEpisodes(episodes as Array<Episode>);
         props.onLoadEpisodes(episodes);
@@ -99,7 +97,7 @@ export function EpisodeList(props: EpisodeListProps) {
             <option value="desc">降順</option>
           </select>
           <button onClick={async () => {
-            const feed = await props.service.readRssInfo(decodedChannelUrl);
+            const feed = await props.service.readRssInfo(props.channelUrl);
             await props.service.addPodcastChannel(feed);
             window.location.reload();
           }}>RSS 再読み込み</button>

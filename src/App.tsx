@@ -94,7 +94,7 @@ function App() {
       setIsAutoPlay(false);
     }
 
-    navigate(`/${encodeURIComponent(channel.uri)}/episodes`);
+    navigate(`/episodes`);
   }
 
   async function handleChannelDeleteClick(channel_index: number, event: React.MouseEvent<HTMLElement>) {
@@ -214,7 +214,7 @@ function App() {
               <MuiLink
                 component={Link}
                 onClick={() => handleNavClick(playEpisodeId)}
-                to={`/${encodeURIComponent(channels[selectedChannel].uri)}/episodes`}>
+                to={`/episodes`}>
                 エピソード再生
               </MuiLink>
             </>
@@ -253,10 +253,11 @@ function App() {
               />
             </React.Fragment>
           } />
-          <Route path="/:channelUrl/episodes" element={
+          <Route path="/episodes" element={
             <React.Fragment>
               <EpisodeList
                 service={service}
+                channelUrl={channels[selectedChannel]?.uri}
                 onEpisodeClick={handleEpisodeClick}
                 onLoadEpisodes={(episodes: Array<Episode>) => setEpisodes(episodes)}
               />
