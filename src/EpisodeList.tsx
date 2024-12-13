@@ -35,7 +35,7 @@ export function EpisodeList(props: EpisodeListProps) {
         props.onLoadEpisodes(episodes);
       })
       .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
-  });
+  }, [props.channelUrl]);
 
   const タイトル昇順 = (a: Episode, b: Episode) => a.title.localeCompare(b.title);
   const タイトル降順 = (a: Episode, b: Episode) => -a.title.localeCompare(b.title);
@@ -98,7 +98,12 @@ export function EpisodeList(props: EpisodeListProps) {
           <button onClick={async () => {
             const feed = await props.service.readRssInfo(props.channelUrl);
             await props.service.addPodcastChannel(feed);
-            window.location.reload();
+            props.service.getEpisodes(props.channelUrl)
+              .then((episodes) => {
+                setEpisodes(episodes as Array<Episode>);
+                props.onLoadEpisodes(episodes);
+              })
+              .catch((err) => updateErrorMessage(`⚠️ get episode list error: ${err}`));
           }}>RSS 再読み込み</button>
         </div>
       </div>
