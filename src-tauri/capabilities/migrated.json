@@ -48,6 +48,7 @@
     "core:window:allow-set-cursor-position",
     "core:window:allow-set-ignore-cursor-events",
     "core:window:allow-start-dragging",
+    "core:window:allow-destroy",
     "core:webview:allow-print",
     "shell:allow-execute",
     "shell:allow-open",

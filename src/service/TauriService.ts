@@ -9,11 +9,11 @@ const appWindow = getCurrentWebviewWindow()
 
 export const TauriService : Service = {
     onClose: async (handleCloseFunction) => {
-        appWindow.listen('tauri://close-requested', async ({ event, payload }) => {
+        appWindow.listen('tauri://close-requested', async () => {
 
           await handleCloseFunction();
 
-          appWindow.close();
+          appWindow.destroy();
         });
     },
     getChannels: async () => {
