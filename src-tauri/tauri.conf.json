@@ -44,7 +44,7 @@
   },
   "productName": "scab-player",
   "mainBinaryName": "scab-player",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "identifier": "dev.mikoto2000.scab-player",
   "plugins": {},
   "app": {
